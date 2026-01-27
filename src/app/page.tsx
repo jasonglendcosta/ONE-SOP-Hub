@@ -3,6 +3,7 @@
 import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { departments, stats, type Department, type SOP } from "@/lib/data";
+import SOPAssistant from "@/components/SOPAssistant";
 
 // ===== ICONS =====
 const SearchIcon = () => (
@@ -455,6 +456,9 @@ export default function Home() {
           </div>
         </footer>
       </div>
+
+      {/* ===== SOP ASSISTANT ===== */}
+      <SOPAssistant />
 
       {/* ===== MODAL ===== */}
       <AnimatePresence>
