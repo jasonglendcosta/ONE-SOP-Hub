@@ -265,12 +265,6 @@ const CheckIcon = () => (
   </svg>
 );
 
-const PlayIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-    <polygon points="5 3 19 12 5 21 5 3" />
-  </svg>
-);
-
 // ============================================
 // PROCESS FLOW MODAL COMPONENT
 // ============================================
@@ -284,31 +278,42 @@ function ProcessFlowModal({
   onClose: () => void;
 }) {
   const [activeStep, setActiveStep] = useState<number | null>(null);
-  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
-  const [currentAutoStep, setCurrentAutoStep] = useState(0);
-
-  // Auto-play animation
-  useEffect(() => {
-    if (!isAutoPlaying) return;
-
-    const interval = setInterval(() => {
-      setCurrentAutoStep(prev => {
-        if (prev >= sop.flow.length - 1) {
-          setIsAutoPlaying(false);
-          return 0;
-        }
-        return prev + 1;
-      });
-    }, 1500);
-
-    return () => clearInterval(interval);
-  }, [isAutoPlaying, sop.flow.length]);
 
   const handleDownload = useCallback(async () => {
     try {
-      await generateSOPDocument(sop, deptName);
+      // Try to download the actual file from the API first
+      const response = await fetch(`/api/sops/download?id=${encodeURIComponent(sop.id)}`);
+
+      if (response.ok) {
+        // File exists - download it
+        const blob = await response.blob();
+        const contentDisposition = response.headers.get('Content-Disposition');
+        let fileName = `${sop.id}.docx`;
+
+        if (contentDisposition) {
+          const match = contentDisposition.match(/filename="(.+)"/);
+          if (match) fileName = match[1];
+        }
+
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      } else {
+        // No actual file - fall back to generating DOCX
+        await generateSOPDocument(sop, deptName);
+      }
     } catch (error) {
-      console.error('Failed to generate document:', error);
+      console.error('Failed to download document:', error);
+      try {
+        await generateSOPDocument(sop, deptName);
+      } catch (genError) {
+        console.error('Failed to generate document:', genError);
+      }
     }
   }, [sop, deptName]);
 
@@ -362,25 +367,6 @@ function ProcessFlowModal({
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <motion.button
-              onClick={() => {
-                setIsAutoPlaying(!isAutoPlaying);
-                setCurrentAutoStep(0);
-              }}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold"
-              style={{
-                background: isAutoPlaying
-                  ? 'linear-gradient(135deg, #D86DCB, #8B5CF6)'
-                  : 'rgba(216, 109, 203, 0.1)',
-                border: '1px solid rgba(216, 109, 203, 0.3)',
-                color: isAutoPlaying ? 'white' : '#D86DCB',
-              }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <PlayIcon />
-              {isAutoPlaying ? 'Playing...' : 'Auto Play'}
-            </motion.button>
             <motion.button
               onClick={handleDownload}
               className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold"
@@ -436,8 +422,7 @@ function ProcessFlowModal({
               {/* Steps */}
               <div className="space-y-4">
                 {sop.flow.map((step, index) => {
-                  const isActive = activeStep === index || (isAutoPlaying && currentAutoStep === index);
-                  const isPast = isAutoPlaying && currentAutoStep > index;
+                  const isActive = activeStep === index;
 
                   return (
                     <motion.div
@@ -452,7 +437,7 @@ function ProcessFlowModal({
                       <motion.div
                         className="relative z-10 w-16 h-16 rounded-2xl flex items-center justify-center shrink-0"
                         style={{
-                          background: isActive || isPast
+                          background: isActive
                             ? 'linear-gradient(135deg, #D86DCB, #8B5CF6)'
                             : 'rgba(216, 109, 203, 0.1)',
                           border: isActive
@@ -465,13 +450,9 @@ function ProcessFlowModal({
                         animate={isActive ? { scale: [1, 1.05, 1] } : {}}
                         transition={{ duration: 1, repeat: isActive ? Infinity : 0 }}
                       >
-                        {isPast ? (
-                          <CheckIcon />
-                        ) : (
-                          <span className={`font-display text-xl font-bold ${isActive || isPast ? 'text-white' : 'text-[#D86DCB]'}`}>
-                            {index + 1}
-                          </span>
-                        )}
+                        <span className={`font-display text-xl font-bold ${isActive ? 'text-white' : 'text-[#D86DCB]'}`}>
+                          {index + 1}
+                        </span>
                       </motion.div>
 
                       {/* Step Content */}
@@ -622,9 +603,43 @@ export default function Home() {
   const handleDownloadSOP = useCallback(async (sop: SOP, deptName: string) => {
     setDownloading(sop.id);
     try {
-      await generateSOPDocument(sop, deptName);
+      // Try to download the actual file from the API first
+      const response = await fetch(`/api/sops/download?id=${encodeURIComponent(sop.id)}`);
+
+      if (response.ok) {
+        // File exists - download it
+        const blob = await response.blob();
+        const contentDisposition = response.headers.get('Content-Disposition');
+        let fileName = `${sop.id}.docx`;
+
+        // Extract filename from Content-Disposition header if available
+        if (contentDisposition) {
+          const match = contentDisposition.match(/filename="(.+)"/);
+          if (match) fileName = match[1];
+        }
+
+        // Create download link
+        const url = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        window.URL.revokeObjectURL(url);
+      } else {
+        // No actual file - fall back to generating DOCX
+        console.log('No actual file found, generating DOCX...');
+        await generateSOPDocument(sop, deptName);
+      }
     } catch (error) {
-      console.error('Failed to generate document:', error);
+      console.error('Failed to download document:', error);
+      // Try generating as fallback
+      try {
+        await generateSOPDocument(sop, deptName);
+      } catch (genError) {
+        console.error('Failed to generate document:', genError);
+      }
     }
     setDownloading(null);
   }, []);
@@ -815,7 +830,7 @@ export default function Home() {
         </h3>
 
         {/* ===== DEPARTMENT GRID ===== */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-stretch">
           {filteredDepts.map((dept, i) => (
             <motion.div
               key={dept.id}
@@ -824,7 +839,7 @@ export default function Home() {
               transition={{ delay: 0.1 + i * 0.05 }}
               whileHover={{ y: -8, scale: 1.02 }}
               onClick={() => setSelectedDept(dept)}
-              className="glass rounded-3xl p-6 cursor-pointer card-hover shimmer-container group relative"
+              className="glass rounded-3xl p-6 cursor-pointer card-hover shimmer-container group relative h-full flex flex-col"
             >
               {/* Top Bar */}
               <div
@@ -881,7 +896,7 @@ export default function Home() {
               </div>
 
               {/* Footer */}
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between mt-auto pt-2">
                 <motion.button
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
