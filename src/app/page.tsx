@@ -1,83 +1,34 @@
 "use client";
 
-import { useState, useMemo, useEffect, useRef, useCallback } from "react";
-import { motion, AnimatePresence, useSpring, useTransform } from "framer-motion";
+import { useState, useMemo, useEffect } from "react";
+import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from "framer-motion";
 import { departments, stats, type Department, type SOP } from "@/lib/data";
 import SOPAssistant from "@/components/SOPAssistant";
 
 // ============================================
-// ANIMATED COUNTER COMPONENT
+// ANIMATED COUNTER
 // ============================================
-function AnimatedCounter({ value, suffix = "", duration = 2 }: { value: number | string; suffix?: string; duration?: number }) {
+function AnimatedCounter({ value, duration = 2 }: { value: number | string; duration?: number }) {
   const numericValue = typeof value === 'string' ? parseInt(value.replace(/[^0-9]/g, '')) || 0 : value;
-  const springValue = useSpring(0, { duration: duration * 1000, bounce: 0 });
-  const displayValue = useTransform(springValue, (v) => Math.round(v));
-  const [display, setDisplay] = useState(0);
+  const suffix = typeof value === 'string' ? value.replace(/[0-9]/g, '') : '';
+  const spring = useSpring(0, { duration: duration * 1000, bounce: 0 });
+  const display = useTransform(spring, (v) => Math.round(v));
+  const [current, setCurrent] = useState(0);
 
   useEffect(() => {
-    springValue.set(numericValue);
-    const unsubscribe = displayValue.on("change", (v) => setDisplay(v));
+    spring.set(numericValue);
+    const unsubscribe = display.on("change", (v) => setCurrent(v));
     return () => unsubscribe();
-  }, [numericValue, springValue, displayValue]);
+  }, [numericValue, spring, display]);
 
-  const displaySuffix = typeof value === 'string' ? value.replace(/[0-9]/g, '') : suffix;
-
-  return <span>{display}{displaySuffix}</span>;
-}
-
-// ============================================
-// 3D TILT CARD COMPONENT
-// ============================================
-function TiltCard({ children, className, onClick }: { children: React.ReactNode; className?: string; onClick?: () => void }) {
-  const cardRef = useRef<HTMLDivElement>(null);
-  const [transform, setTransform] = useState({ rotateX: 0, rotateY: 0 });
-  const [isHovering, setIsHovering] = useState(false);
-
-  const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!cardRef.current) return;
-    const rect = cardRef.current.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
-    const rotateX = ((e.clientY - centerY) / (rect.height / 2)) * -8;
-    const rotateY = ((e.clientX - centerX) / (rect.width / 2)) * 8;
-    setTransform({ rotateX, rotateY });
-  }, []);
-
-  const handleMouseLeave = useCallback(() => {
-    setTransform({ rotateX: 0, rotateY: 0 });
-    setIsHovering(false);
-  }, []);
-
-  return (
-    <div
-      ref={cardRef}
-      className={`card-3d ${className || ''}`}
-      onMouseMove={handleMouseMove}
-      onMouseEnter={() => setIsHovering(true)}
-      onMouseLeave={handleMouseLeave}
-      onClick={onClick}
-      style={{ perspective: '1000px' }}
-    >
-      <motion.div
-        className="card-3d-inner w-full h-full"
-        animate={{
-          rotateX: transform.rotateX,
-          rotateY: transform.rotateY,
-          scale: isHovering ? 1.02 : 1,
-        }}
-        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      >
-        {children}
-      </motion.div>
-    </div>
-  );
+  return <span>{current}{suffix}</span>;
 }
 
 // ============================================
 // ICONS
 // ============================================
 const SearchIcon = () => (
-  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <circle cx="11" cy="11" r="8" />
     <path d="m21 21-4.35-4.35" />
   </svg>
@@ -99,21 +50,27 @@ const FlowIcon = () => (
 );
 
 const ArrowIcon = () => (
-  <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M5 12h14" />
     <path d="m12 5 7 7-7 7" />
   </svg>
 );
 
 const CloseIcon = () => (
-  <svg className="w-[22px] h-[22px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <line x1="18" y1="6" x2="6" y2="18" />
     <line x1="6" y1="6" x2="18" y2="18" />
   </svg>
 );
 
 const ChevronIcon = ({ expanded }: { expanded: boolean }) => (
-  <svg className={`w-[18px] h-[18px] transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+  <svg
+    className={`w-4 h-4 transition-transform duration-300 ${expanded ? 'rotate-180' : ''}`}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
     <polyline points="6 9 12 15 18 9" />
   </svg>
 );
@@ -142,7 +99,7 @@ const ChartIcon = () => (
 );
 
 const DownloadIcon = () => (
-  <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
     <polyline points="7 10 12 15 17 10" />
     <line x1="12" y1="15" x2="12" y2="3" />
@@ -150,7 +107,7 @@ const DownloadIcon = () => (
 );
 
 const SparkleIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
     <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/>
   </svg>
 );
@@ -166,17 +123,13 @@ export default function Home() {
 
   useEffect(() => {
     setMounted(true);
-
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
         e.preventDefault();
         document.getElementById('searchInput')?.focus();
       }
-      if (e.key === 'Escape') {
-        setSelectedDept(null);
-      }
+      if (e.key === 'Escape') setSelectedDept(null);
     };
-
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
   }, []);
@@ -195,264 +148,164 @@ export default function Home() {
   if (!mounted) return null;
 
   return (
-    <div className="min-h-screen relative noise-overlay">
-      {/* ============================================
-          BACKGROUND EFFECTS
-          ============================================ */}
+    <div className="min-h-screen relative">
+      {/* ===== BACKGROUND ===== */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {/* Primary Orb - Top Right */}
-        <motion.div
-          className="absolute w-[800px] h-[800px] rounded-full opacity-40 -top-[300px] -right-[200px]"
-          animate={{
-            x: [0, 50, -30, 50, 0],
-            y: [0, -40, 30, -20, 0],
-            scale: [1, 1.1, 0.95, 1.05, 1],
-          }}
-          transition={{ duration: 25, repeat: Infinity, ease: "easeInOut" }}
+        {/* Orbs */}
+        <div
+          className="absolute w-[700px] h-[700px] rounded-full opacity-50 -top-[250px] -right-[150px] animate-float"
           style={{
-            background: 'radial-gradient(circle, rgba(216, 109, 203, 0.6) 0%, rgba(139, 92, 246, 0.3) 50%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(216, 109, 203, 0.5) 0%, rgba(139, 92, 246, 0.2) 50%, transparent 70%)',
             filter: 'blur(80px)',
           }}
         />
-
-        {/* Secondary Orb - Bottom Left */}
-        <motion.div
-          className="absolute w-[700px] h-[700px] rounded-full opacity-40 -bottom-[250px] -left-[200px]"
-          animate={{
-            x: [0, -40, 30, -50, 0],
-            y: [0, 30, -40, 20, 0],
-            scale: [1, 0.95, 1.1, 1, 1],
-          }}
-          transition={{ duration: 30, repeat: Infinity, ease: "easeInOut", delay: 5 }}
+        <div
+          className="absolute w-[600px] h-[600px] rounded-full opacity-50 -bottom-[200px] -left-[150px] animate-float"
           style={{
             background: 'radial-gradient(circle, rgba(184, 76, 184, 0.5) 0%, rgba(216, 109, 203, 0.2) 50%, transparent 70%)',
             filter: 'blur(100px)',
+            animationDelay: '-8s'
           }}
         />
-
-        {/* Center Glow */}
-        <motion.div
-          className="absolute w-[600px] h-[600px] rounded-full opacity-25 top-[35%] left-[35%]"
-          animate={{
-            scale: [1, 1.2, 1],
-            opacity: [0.2, 0.35, 0.2],
-          }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        <div
+          className="absolute w-[500px] h-[500px] rounded-full opacity-30 top-[40%] left-[30%] animate-float"
           style={{
             background: 'radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 60%)',
             filter: 'blur(120px)',
+            animationDelay: '-16s'
           }}
         />
 
-        {/* Accent Orb */}
-        <motion.div
-          className="absolute w-[400px] h-[400px] rounded-full opacity-20 top-[15%] right-[20%]"
-          animate={{
-            x: [0, 30, -20, 0],
-            y: [0, -30, 20, 0],
-          }}
-          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 10 }}
-          style={{
-            background: 'radial-gradient(circle, rgba(196, 160, 98, 0.4) 0%, transparent 60%)',
-            filter: 'blur(80px)',
-          }}
-        />
-
-        {/* Grid Pattern */}
+        {/* Grid */}
         <div
           className="absolute inset-0 opacity-[0.03]"
           style={{
-            backgroundImage: `
-              linear-gradient(rgba(216, 109, 203, 0.5) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(216, 109, 203, 0.5) 1px, transparent 1px)
-            `,
+            backgroundImage: 'linear-gradient(rgba(216, 109, 203, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(216, 109, 203, 0.5) 1px, transparent 1px)',
             backgroundSize: '60px 60px'
-          }}
-        />
-
-        {/* Radial Gradient Overlay */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background: 'radial-gradient(ellipse at 50% 0%, transparent 0%, rgba(10, 10, 15, 0.5) 70%)'
           }}
         />
       </div>
 
-      {/* ============================================
-          CONTENT
-          ============================================ */}
-      <div className="relative z-10 max-w-[1600px] mx-auto px-5 py-12 pb-28">
+      {/* ===== CONTENT ===== */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
 
-        {/* ============================================
-            HEADER / HERO SECTION
-            ============================================ */}
+        {/* ===== HEADER ===== */}
         <header className="text-center mb-16">
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, ease: [0.25, 0.1, 0.25, 1] }}
+            transition={{ duration: 0.8 }}
           >
             {/* Logo */}
-            <motion.div
-              className="mb-8"
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            >
-              <div className="space-grotesk text-[56px] md:text-[64px] font-light tracking-[16px] gradient-text">
+            <div className="mb-8">
+              <h1 className="font-display text-6xl md:text-7xl font-light tracking-[0.3em] text-gradient">
                 ONE
-              </div>
-              <div className="space-grotesk text-[12px] tracking-[12px] text-white/40 uppercase mt-2 font-medium">
+              </h1>
+              <p className="font-display text-xs tracking-[0.5em] text-white/40 uppercase mt-2">
                 Development
-              </div>
-            </motion.div>
+              </p>
+            </div>
 
-            {/* GOD TIER Badge */}
+            {/* Badge */}
             <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
+              initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.4, type: "spring", stiffness: 200 }}
-              className="inline-flex items-center gap-3 px-8 py-3.5 rounded-full text-[12px] font-bold tracking-[4px] uppercase mb-10 relative overflow-hidden group cursor-default"
+              transition={{ delay: 0.2 }}
+              className="inline-flex items-center gap-3 px-6 py-3 rounded-full text-xs font-bold tracking-[0.2em] uppercase mb-8 animate-pulse-glow"
               style={{
                 background: 'linear-gradient(135deg, rgba(216, 109, 203, 0.15), rgba(139, 92, 246, 0.1))',
                 border: '1px solid rgba(216, 109, 203, 0.3)',
                 color: '#D86DCB',
               }}
             >
-              {/* Animated border */}
-              <div
-                className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-                style={{
-                  background: 'conic-gradient(from 0deg, #D86DCB, #8B5CF6, #B84CB8, #D86DCB)',
-                  padding: '1px',
-                  mask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                  maskComposite: 'exclude',
-                  animation: 'spin 3s linear infinite',
-                }}
-              />
               <motion.span
                 animate={{ rotate: 360 }}
                 transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                className="text-lg"
               >
                 <SparkleIcon />
               </motion.span>
-              <span className="relative z-10">GOD TIER EDITION</span>
+              <span>GOD TIER EDITION</span>
               <motion.span
                 animate={{ rotate: -360 }}
                 transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                className="text-lg"
               >
                 <SparkleIcon />
               </motion.span>
             </motion.div>
 
-            {/* Main Title */}
-            <motion.h1
-              className="space-grotesk text-[clamp(42px,9vw,80px)] font-bold mb-6 leading-[1.1]"
-              initial={{ opacity: 0, y: 30 }}
+            {/* Title */}
+            <motion.h2
+              className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-gradient"
+              initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.8 }}
+              transition={{ delay: 0.3 }}
             >
-              <span className="gradient-text">SOP Command Center</span>
-            </motion.h1>
+              SOP Command Center
+            </motion.h2>
 
             {/* Subtitle */}
             <motion.p
-              className="text-lg md:text-xl text-white/60 max-w-[800px] mx-auto leading-relaxed mb-12"
+              className="text-lg text-white/60 max-w-2xl mx-auto mb-12"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.7, duration: 0.8 }}
+              transition={{ delay: 0.4 }}
             >
               Enterprise-grade Standard Operating Procedures with complete process documentation,
-              responsible stakeholders, KPIs, and interactive workflows for{' '}
+              stakeholders, KPIs, and workflows for{' '}
               <span className="text-[#D86DCB] font-semibold">{stats.totalDepartments} departments</span>.
             </motion.p>
           </motion.div>
 
-          {/* Search Bar */}
+          {/* Search */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8 }}
-            className="max-w-[700px] mx-auto relative mb-16"
+            transition={{ delay: 0.5 }}
+            className="max-w-xl mx-auto mb-12"
           >
-            <div className="absolute left-6 top-1/2 -translate-y-1/2 text-[#D86DCB]">
-              <SearchIcon />
-            </div>
-            <input
-              id="searchInput"
-              type="text"
-              placeholder="Search departments, SOPs, or keywords... (Ctrl+K)"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full py-5 pl-16 pr-8 rounded-2xl text-base text-white placeholder:text-white/35 transition-all duration-300 focus:outline-none glass-card-strong"
-              style={{
-                border: '1px solid rgba(216, 109, 203, 0.15)',
-              }}
-              onFocus={(e) => {
-                e.target.style.borderColor = 'rgba(216, 109, 203, 0.5)';
-                e.target.style.boxShadow = '0 0 50px rgba(216, 109, 203, 0.2), inset 0 1px 0 0 rgba(255, 255, 255, 0.1)';
-              }}
-              onBlur={(e) => {
-                e.target.style.borderColor = 'rgba(216, 109, 203, 0.15)';
-                e.target.style.boxShadow = 'none';
-              }}
-            />
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 hidden md:flex items-center gap-1 px-2 py-1 rounded-md bg-white/5 border border-white/10 text-[11px] text-white/40 font-mono">
-              <span>Ctrl</span>
-              <span>+</span>
-              <span>K</span>
+            <div className="relative">
+              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#D86DCB]">
+                <SearchIcon />
+              </div>
+              <input
+                id="searchInput"
+                type="text"
+                placeholder="Search departments, SOPs, keywords... (Ctrl+K)"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full py-4 pl-12 pr-4 rounded-2xl text-white placeholder:text-white/40 bg-white/5 border border-white/10 focus:border-[#D86DCB]/50 focus:outline-none focus:ring-2 focus:ring-[#D86DCB]/20 transition-all"
+              />
             </div>
           </motion.div>
 
-          {/* Stats Grid */}
+          {/* Stats */}
           <motion.div
+            className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.9 }}
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 max-w-[1000px] mx-auto"
+            transition={{ delay: 0.6 }}
           >
             {[
               { value: stats.totalSOPs, label: "Total SOPs", color: "#D86DCB" },
               { value: stats.totalDepartments, label: "Departments", color: "#8B5CF6" },
-              { value: stats.totalFlows, label: "Process Flows", color: "#B84CB8" },
+              { value: stats.totalFlows, label: "Workflows", color: "#B84CB8" },
               { value: stats.compliance, label: "RERA Compliant", color: "#00D26A" }
             ].map((stat, i) => (
               <motion.div
                 key={stat.label}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1 + i * 0.1, duration: 0.5 }}
-                whileHover={{
-                  y: -8,
-                  transition: { duration: 0.3 }
-                }}
-                className="relative py-8 px-6 rounded-2xl text-center cursor-default overflow-hidden group glass-card shimmer"
-                style={{
-                  border: '1px solid rgba(216, 109, 203, 0.1)',
-                }}
+                transition={{ delay: 0.7 + i * 0.1 }}
+                whileHover={{ y: -4, scale: 1.02 }}
+                className="glass rounded-2xl p-6 text-center cursor-default shimmer-container"
               >
-                {/* Hover glow */}
                 <div
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                  style={{
-                    background: `radial-gradient(circle at center, ${stat.color}15 0%, transparent 70%)`,
-                  }}
-                />
-
-                <div
-                  className="space-grotesk text-[52px] md:text-[56px] font-bold leading-none relative z-10"
-                  style={{
-                    background: `linear-gradient(135deg, ${stat.color}, ${stat.color}99)`,
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                  }}
+                  className="font-display text-4xl md:text-5xl font-bold mb-2"
+                  style={{ color: stat.color }}
                 >
                   <AnimatedCounter value={stat.value} duration={2 + i * 0.3} />
                 </div>
-                <div className="text-[11px] text-white/50 tracking-[2px] uppercase mt-3 font-medium relative z-10">
+                <div className="text-xs text-white/50 uppercase tracking-wider">
                   {stat.label}
                 </div>
               </motion.div>
@@ -460,177 +313,116 @@ export default function Home() {
           </motion.div>
         </header>
 
-        {/* ============================================
-            DIVIDER
-            ============================================ */}
-        <div className="flex items-center justify-center gap-6 my-20">
+        {/* ===== DIVIDER ===== */}
+        <div className="flex items-center justify-center gap-4 my-16">
+          <div className="w-24 h-px bg-gradient-to-r from-transparent via-[#D86DCB]/50 to-transparent" />
           <motion.div
-            className="w-40 h-px"
-            style={{ background: 'linear-gradient(90deg, transparent, rgba(216, 109, 203, 0.5), transparent)' }}
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ delay: 1.2, duration: 0.8 }}
+            className="w-3 h-3 bg-gradient-to-br from-[#D86DCB] to-[#8B5CF6] rounded-sm"
+            animate={{ rotate: [45, 225, 45], scale: [1, 1.2, 1] }}
+            transition={{ duration: 4, repeat: Infinity }}
+            style={{ boxShadow: '0 0 20px rgba(216, 109, 203, 0.5)' }}
           />
-          <motion.div
-            className="w-4 h-4"
-            style={{
-              background: 'linear-gradient(135deg, #D86DCB, #8B5CF6)',
-              boxShadow: '0 0 30px rgba(216, 109, 203, 0.5)',
-            }}
-            animate={{
-              rotate: [45, 45, 225, 225, 45],
-              scale: [1, 1.2, 1, 1.2, 1],
-            }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          />
-          <motion.div
-            className="w-40 h-px"
-            style={{ background: 'linear-gradient(90deg, transparent, rgba(216, 109, 203, 0.5), transparent)' }}
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ delay: 1.2, duration: 0.8 }}
-          />
+          <div className="w-24 h-px bg-gradient-to-r from-transparent via-[#D86DCB]/50 to-transparent" />
         </div>
 
-        {/* ============================================
-            SECTION TITLE
-            ============================================ */}
-        <motion.h2
-          className="space-grotesk text-center text-[13px] font-semibold tracking-[6px] uppercase text-white/40 mb-14"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 1.3 }}
-        >
+        {/* ===== SECTION TITLE ===== */}
+        <h3 className="font-display text-center text-xs font-semibold tracking-[0.3em] uppercase text-white/40 mb-10">
           Department SOPs
-        </motion.h2>
+        </h3>
 
-        {/* ============================================
-            DEPARTMENT GRID
-            ============================================ */}
-        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 md:gap-8">
+        {/* ===== DEPARTMENT GRID ===== */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredDepts.map((dept, i) => (
-            <TiltCard
+            <motion.div
               key={dept.id}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 + i * 0.05 }}
+              whileHover={{ y: -8, scale: 1.02 }}
               onClick={() => setSelectedDept(dept)}
-              className="cursor-pointer"
+              className="glass rounded-3xl p-6 cursor-pointer card-hover shimmer-container group"
             >
-              <motion.div
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 1.4 + i * 0.05, duration: 0.6 }}
-                className="relative p-7 md:p-8 rounded-3xl overflow-hidden group h-full gradient-border shimmer"
-                style={{
-                  background: 'rgba(15, 15, 25, 0.6)',
-                  backdropFilter: 'blur(20px)',
-                  border: '1px solid rgba(216, 109, 203, 0.08)',
-                }}
-              >
-                {/* Top gradient bar */}
-                <div
-                  className="absolute top-0 left-0 right-0 h-[2px] opacity-0 group-hover:opacity-100 transition-all duration-500"
+              {/* Top Bar */}
+              <div
+                className="absolute top-0 left-0 right-0 h-0.5 rounded-t-3xl opacity-0 group-hover:opacity-100 transition-opacity"
+                style={{ background: 'linear-gradient(90deg, transparent, #D86DCB, #8B5CF6, #D86DCB, transparent)' }}
+              />
+
+              {/* Header */}
+              <div className="flex items-start gap-4 mb-5">
+                <motion.div
+                  className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shrink-0"
+                  whileHover={{ scale: 1.1, rotate: 5 }}
                   style={{
-                    background: 'linear-gradient(90deg, transparent, #D86DCB, #8B5CF6, #D86DCB, transparent)',
+                    background: 'linear-gradient(135deg, rgba(216, 109, 203, 0.15), rgba(139, 92, 246, 0.1))',
+                    border: '1px solid rgba(216, 109, 203, 0.2)',
                   }}
-                />
-
-                {/* Radial glow on hover */}
-                <div
-                  className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
-                  style={{
-                    background: 'radial-gradient(circle at 30% 30%, rgba(216, 109, 203, 0.1) 0%, transparent 50%)',
-                  }}
-                />
-
-                <div className="relative z-10">
-                  {/* Header */}
-                  <div className="flex items-start gap-5 mb-6">
-                    <motion.div
-                      className="w-[72px] h-[72px] rounded-2xl flex items-center justify-center text-[34px] shrink-0 relative overflow-hidden"
-                      whileHover={{ scale: 1.1, rotate: 5 }}
-                      transition={{ type: "spring", stiffness: 300 }}
-                      style={{
-                        background: 'linear-gradient(135deg, rgba(216, 109, 203, 0.2), rgba(139, 92, 246, 0.15))',
-                        border: '1px solid rgba(216, 109, 203, 0.25)',
-                        boxShadow: '0 8px 32px rgba(216, 109, 203, 0.15)',
-                      }}
-                    >
-                      {dept.icon}
-                    </motion.div>
-                    <div className="flex-1 min-w-0">
-                      <span
-                        className="inline-block text-[10px] font-bold tracking-[2px] uppercase px-3 py-1.5 rounded-lg mb-2.5"
-                        style={{
-                          background: 'rgba(216, 109, 203, 0.1)',
-                          color: '#D86DCB',
-                          border: '1px solid rgba(216, 109, 203, 0.15)',
-                        }}
-                      >
-                        {dept.id} DEPARTMENT
-                      </span>
-                      <h3 className="space-grotesk text-xl md:text-[22px] font-semibold mb-2 leading-tight text-white">
-                        {dept.name}
-                      </h3>
-                      <p className="text-[13px] text-white/50">
-                        Process Owner: <strong className="text-[#D86DCB] font-medium">{dept.owner}</strong>
-                      </p>
-                    </div>
-                  </div>
-
-                  {/* Stats */}
-                  <div className="flex gap-6 py-4 border-y border-white/[0.06] mb-6">
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-[#D86DCB]"><FileIcon /></span>
-                      <span className="text-[13px] text-white/60">
-                        <span className="font-bold text-white">{dept.sops.length}</span> SOPs
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2.5">
-                      <span className="text-[#8B5CF6]"><FlowIcon /></span>
-                      <span className="text-[13px] text-white/60">
-                        <span className="font-bold text-white">{dept.sops.length}</span> Flows
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Footer */}
-                  <div className="flex items-center justify-between">
-                    <motion.button
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.98 }}
-                      className="flex items-center gap-2.5 px-6 py-3.5 rounded-xl text-sm font-semibold text-white transition-all duration-300"
-                      style={{
-                        background: 'linear-gradient(135deg, #D86DCB, #B84CB8)',
-                        boxShadow: '0 4px 20px rgba(216, 109, 203, 0.3)',
-                      }}
-                    >
-                      View All SOPs
-                      <motion.span
-                        className="inline-block"
-                        whileHover={{ x: 4 }}
-                      >
-                        <ArrowIcon />
-                      </motion.span>
-                    </motion.button>
-                    <div
-                      className="flex items-center gap-2 text-[11px] font-semibold px-3.5 py-2 rounded-full"
-                      style={{
-                        background: 'rgba(0, 210, 106, 0.08)',
-                        border: '1px solid rgba(0, 210, 106, 0.2)',
-                        color: '#00D26A',
-                      }}
-                    >
-                      <motion.span
-                        className="w-2 h-2 rounded-full"
-                        style={{ background: '#00D26A' }}
-                        animate={{ scale: [1, 1.2, 1], opacity: [1, 0.7, 1] }}
-                        transition={{ duration: 2, repeat: Infinity }}
-                      />
-                      RERA
-                    </div>
-                  </div>
+                >
+                  {dept.icon}
+                </motion.div>
+                <div className="flex-1 min-w-0">
+                  <span
+                    className="inline-block text-[10px] font-bold tracking-wider uppercase px-2 py-1 rounded-md mb-2"
+                    style={{
+                      background: 'rgba(216, 109, 203, 0.1)',
+                      color: '#D86DCB',
+                      border: '1px solid rgba(216, 109, 203, 0.15)',
+                    }}
+                  >
+                    {dept.id}
+                  </span>
+                  <h4 className="font-display text-lg font-semibold text-white truncate">
+                    {dept.name}
+                  </h4>
+                  <p className="text-xs text-white/50 mt-1">
+                    Owner: <span className="text-[#D86DCB]">{dept.owner}</span>
+                  </p>
                 </div>
-              </motion.div>
-            </TiltCard>
+              </div>
+
+              {/* Stats Row */}
+              <div className="flex gap-4 py-3 border-t border-b border-white/5 mb-5">
+                <div className="flex items-center gap-2">
+                  <span className="text-[#D86DCB]"><FileIcon /></span>
+                  <span className="text-sm text-white/60">
+                    <strong className="text-white">{dept.sops.length}</strong> SOPs
+                  </span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-[#8B5CF6]"><FlowIcon /></span>
+                  <span className="text-sm text-white/60">
+                    <strong className="text-white">{dept.sops.length}</strong> Flows
+                  </span>
+                </div>
+              </div>
+
+              {/* Footer */}
+              <div className="flex items-center justify-between">
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
+                  style={{
+                    background: 'linear-gradient(135deg, #D86DCB, #B84CB8)',
+                    boxShadow: '0 4px 15px rgba(216, 109, 203, 0.3)',
+                  }}
+                >
+                  View SOPs
+                  <ArrowIcon />
+                </motion.button>
+                <div
+                  className="flex items-center gap-1.5 text-[10px] font-semibold px-3 py-1.5 rounded-full"
+                  style={{
+                    background: 'rgba(0, 210, 106, 0.1)',
+                    border: '1px solid rgba(0, 210, 106, 0.2)',
+                    color: '#00D26A',
+                  }}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#00D26A] animate-pulse" />
+                  RERA
+                </div>
+              </div>
+            </motion.div>
           ))}
         </div>
 
@@ -639,136 +431,93 @@ export default function Home() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="text-center py-24"
+            className="text-center py-20"
           >
-            <div className="text-7xl mb-5">🔍</div>
-            <h3 className="space-grotesk text-2xl font-semibold mb-3">No Results Found</h3>
-            <p className="text-white/50">Try searching for a different term</p>
+            <div className="text-6xl mb-4">🔍</div>
+            <h3 className="font-display text-xl font-semibold mb-2">No Results Found</h3>
+            <p className="text-white/50">Try a different search term</p>
           </motion.div>
         )}
 
-        {/* ============================================
-            FOOTER
-            ============================================ */}
-        <footer className="text-center mt-28 pt-14 border-t border-white/[0.05]">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
+        {/* ===== FOOTER ===== */}
+        <footer className="text-center mt-24 pt-12 border-t border-white/5">
+          <div className="font-display text-xl font-medium text-gradient-static mb-3">
+            ONE DEVELOPMENT
+          </div>
+          <p className="text-sm text-white/40 mb-4">Enterprise-Grade SOPs • GOD TIER Precision</p>
+          <div
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs"
+            style={{
+              background: 'rgba(216, 109, 203, 0.08)',
+              border: '1px solid rgba(216, 109, 203, 0.15)',
+              color: 'rgba(216, 109, 203, 0.8)',
+            }}
           >
-            <div className="space-grotesk text-2xl font-medium gradient-text-static mb-4">
-              ONE DEVELOPMENT
-            </div>
-            <p className="text-sm text-white/40 mb-2">Enterprise-Grade Standard Operating Procedures</p>
-            <p className="text-sm text-white/40 mb-6">Created with GOD TIER Precision</p>
-            <div
-              className="inline-flex items-center gap-2.5 px-6 py-2.5 rounded-full text-[13px]"
-              style={{
-                background: 'rgba(216, 109, 203, 0.08)',
-                border: '1px solid rgba(216, 109, 203, 0.15)',
-                color: 'rgba(216, 109, 203, 0.8)',
-              }}
-            >
-              <motion.span
-                animate={{ rotate: 360 }}
-                transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
-              >
-                ⚡
-              </motion.span>
-              January 2026 | Dubai, UAE
-            </div>
-          </motion.div>
+            <motion.span animate={{ rotate: 360 }} transition={{ duration: 3, repeat: Infinity, ease: "linear" }}>
+              ⚡
+            </motion.span>
+            January 2026 • Dubai, UAE
+          </div>
         </footer>
       </div>
 
-      {/* ============================================
-          SOP ASSISTANT
-          ============================================ */}
+      {/* ===== SOP ASSISTANT ===== */}
       <SOPAssistant />
 
-      {/* ============================================
-          MODAL
-          ============================================ */}
+      {/* ===== MODAL ===== */}
       <AnimatePresence>
         {selectedDept && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-50 flex items-start justify-center p-4 md:p-8 overflow-y-auto"
-            style={{
-              background: 'rgba(5, 5, 10, 0.95)',
-              backdropFilter: 'blur(20px)',
-            }}
+            className="fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto"
+            style={{ background: 'rgba(5, 5, 10, 0.95)', backdropFilter: 'blur(10px)' }}
             onClick={() => setSelectedDept(null)}
           >
             <motion.div
-              initial={{ scale: 0.9, y: 40, opacity: 0 }}
+              initial={{ scale: 0.95, y: 30, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.95, y: 20, opacity: 0 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 250 }}
-              className="w-full max-w-[1150px] my-8 rounded-[32px] overflow-hidden"
+              transition={{ type: 'spring', damping: 25 }}
+              className="w-full max-w-4xl my-8 rounded-3xl overflow-hidden"
               style={{
-                background: 'linear-gradient(180deg, rgba(20, 20, 30, 0.95) 0%, rgba(10, 10, 18, 0.98) 100%)',
+                background: 'linear-gradient(180deg, rgba(20, 20, 30, 0.98) 0%, rgba(10, 10, 18, 0.99) 100%)',
                 border: '1px solid rgba(216, 109, 203, 0.2)',
-                boxShadow: '0 50px 100px -20px rgba(0, 0, 0, 0.5), 0 0 50px rgba(216, 109, 203, 0.1)',
+                boxShadow: '0 30px 80px rgba(0, 0, 0, 0.5)',
               }}
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Header */}
               <div
-                className="flex items-center justify-between p-8 md:p-10 border-b border-white/[0.06]"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(216, 109, 203, 0.1), rgba(139, 92, 246, 0.05))',
-                }}
+                className="flex items-center justify-between p-6 border-b border-white/5"
+                style={{ background: 'linear-gradient(135deg, rgba(216, 109, 203, 0.08), rgba(139, 92, 246, 0.04))' }}
               >
-                <div className="flex items-center gap-5">
+                <div className="flex items-center gap-4">
                   <motion.div
-                    className="w-[72px] h-[72px] rounded-2xl flex items-center justify-center text-[36px]"
-                    initial={{ scale: 0.8, rotate: -10 }}
-                    animate={{ scale: 1, rotate: 0 }}
-                    transition={{ type: "spring", stiffness: 200, delay: 0.1 }}
+                    className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl"
+                    initial={{ scale: 0.8 }}
+                    animate={{ scale: 1 }}
                     style={{
                       background: 'linear-gradient(135deg, #D86DCB, #8B5CF6)',
-                      boxShadow: '0 15px 50px rgba(216, 109, 203, 0.4)',
+                      boxShadow: '0 10px 30px rgba(216, 109, 203, 0.3)',
                     }}
                   >
                     {selectedDept.icon}
                   </motion.div>
                   <div>
-                    <motion.span
-                      className="space-grotesk text-xs font-bold tracking-[2px] text-[#D86DCB] block mb-1"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.2 }}
-                    >
+                    <span className="font-display text-xs font-bold tracking-wider text-[#D86DCB]">
                       {selectedDept.id} DEPARTMENT
-                    </motion.span>
-                    <motion.h2
-                      className="space-grotesk text-2xl md:text-[30px] font-semibold"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 0.25 }}
-                    >
+                    </span>
+                    <h2 className="font-display text-2xl font-semibold text-white">
                       {selectedDept.name}
-                    </motion.h2>
+                    </h2>
                   </div>
                 </div>
                 <motion.button
                   onClick={() => setSelectedDept(null)}
-                  className="w-[56px] h-[56px] rounded-2xl flex items-center justify-center transition-all duration-300"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.03)',
-                    border: '1px solid rgba(255, 255, 255, 0.08)',
-                    color: 'rgba(255, 255, 255, 0.6)',
-                  }}
-                  whileHover={{
-                    rotate: 90,
-                    background: 'rgba(216, 109, 203, 0.15)',
-                    borderColor: 'rgba(216, 109, 203, 0.3)',
-                    color: '#fff',
-                  }}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+                  whileHover={{ rotate: 90 }}
                   whileTap={{ scale: 0.95 }}
                 >
                   <CloseIcon />
@@ -776,103 +525,56 @@ export default function Home() {
               </div>
 
               {/* Modal Body */}
-              <div className="p-6 md:p-10">
-                {/* Overview Cards */}
-                <motion.div
-                  className="grid md:grid-cols-2 gap-5 mb-8"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
-                >
-                  <div
-                    className="p-6 rounded-2xl"
-                    style={{
-                      background: 'rgba(216, 109, 203, 0.05)',
-                      border: '1px solid rgba(216, 109, 203, 0.1)',
-                    }}
-                  >
-                    <h4 className="space-grotesk text-[11px] font-bold tracking-[2px] uppercase text-[#D86DCB] mb-4 flex items-center gap-2">
-                      <InfoIcon />
-                      Department Overview
+              <div className="p-6">
+                {/* Info Cards */}
+                <div className="grid md:grid-cols-2 gap-4 mb-6">
+                  <div className="p-4 rounded-xl" style={{ background: 'rgba(216, 109, 203, 0.05)', border: '1px solid rgba(216, 109, 203, 0.1)' }}>
+                    <h4 className="font-display text-xs font-bold tracking-wider uppercase text-[#D86DCB] mb-3 flex items-center gap-2">
+                      <InfoIcon /> Overview
                     </h4>
-                    <p className="text-sm text-white/65 leading-relaxed">{selectedDept.description}</p>
+                    <p className="text-sm text-white/60 leading-relaxed">{selectedDept.description}</p>
                   </div>
-                  <div
-                    className="p-6 rounded-2xl"
-                    style={{
-                      background: 'rgba(139, 92, 246, 0.05)',
-                      border: '1px solid rgba(139, 92, 246, 0.1)',
-                    }}
-                  >
-                    <h4 className="space-grotesk text-[11px] font-bold tracking-[2px] uppercase text-[#8B5CF6] mb-4 flex items-center gap-2">
-                      <UsersIcon />
-                      Responsible Stakeholders
+                  <div className="p-4 rounded-xl" style={{ background: 'rgba(139, 92, 246, 0.05)', border: '1px solid rgba(139, 92, 246, 0.1)' }}>
+                    <h4 className="font-display text-xs font-bold tracking-wider uppercase text-[#8B5CF6] mb-3 flex items-center gap-2">
+                      <UsersIcon /> Stakeholders
                     </h4>
-                    <div className="flex flex-wrap gap-2.5">
+                    <div className="flex flex-wrap gap-2">
                       {selectedDept.responsible.map((r, i) => (
-                        <motion.span
+                        <span
                           key={i}
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: 0.4 + i * 0.05 }}
-                          className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-[13px]"
-                          style={{
-                            background: 'rgba(139, 92, 246, 0.08)',
-                            border: '1px solid rgba(139, 92, 246, 0.15)',
-                          }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs"
+                          style={{ background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.15)' }}
                         >
-                          <span className="w-2 h-2 rounded-full bg-[#8B5CF6]" />
+                          <span className="w-1.5 h-1.5 rounded-full bg-[#8B5CF6]" />
                           {r}
-                        </motion.span>
+                        </span>
                       ))}
                     </div>
                   </div>
-                </motion.div>
+                </div>
 
                 {/* KPIs */}
-                <motion.div
-                  className="p-6 rounded-2xl mb-8"
-                  style={{
-                    background: 'rgba(216, 109, 203, 0.04)',
-                    border: '1px solid rgba(216, 109, 203, 0.08)',
-                  }}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.35 }}
-                >
-                  <h4 className="space-grotesk text-[11px] font-bold tracking-[2px] uppercase text-[#D86DCB] mb-5 flex items-center gap-2">
-                    <ChartIcon />
-                    Key Performance Indicators
+                <div className="p-4 rounded-xl mb-6" style={{ background: 'rgba(216, 109, 203, 0.03)', border: '1px solid rgba(216, 109, 203, 0.08)' }}>
+                  <h4 className="font-display text-xs font-bold tracking-wider uppercase text-[#D86DCB] mb-4 flex items-center gap-2">
+                    <ChartIcon /> KPIs
                   </h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     {selectedDept.kpis.map((kpi, i) => (
-                      <motion.div
-                        key={i}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: 0.4 + i * 0.08 }}
-                        className="p-5 rounded-xl text-center"
-                        style={{ background: 'rgba(255, 255, 255, 0.02)' }}
-                      >
-                        <div className="space-grotesk text-[26px] font-bold text-[#00D26A]">{kpi.value}</div>
-                        <div className="text-[10px] text-white/45 uppercase tracking-[1px] mt-2">{kpi.label}</div>
-                      </motion.div>
+                      <div key={i} className="p-3 rounded-lg text-center" style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
+                        <div className="font-display text-xl font-bold text-[#00D26A]">{kpi.value}</div>
+                        <div className="text-[10px] text-white/40 uppercase mt-1">{kpi.label}</div>
+                      </div>
                     ))}
                   </div>
-                </motion.div>
+                </div>
 
-                {/* SOPs Section */}
-                <motion.div
-                  className="space-grotesk text-xs font-semibold tracking-[3px] uppercase text-white/40 mb-6 flex items-center gap-4"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ delay: 0.5 }}
-                >
-                  Standard Operating Procedures ({selectedDept.sops.length})
-                  <div className="flex-1 h-px bg-white/[0.06]" />
-                </motion.div>
+                {/* SOPs */}
+                <div className="font-display text-xs font-semibold tracking-wider uppercase text-white/40 mb-4 flex items-center gap-3">
+                  SOPs ({selectedDept.sops.length})
+                  <div className="flex-1 h-px bg-white/5" />
+                </div>
 
-                <div className="space-y-4">
+                <div className="space-y-3">
                   {selectedDept.sops.map((sop, i) => (
                     <SOPCard
                       key={sop.id}
@@ -898,202 +600,133 @@ export default function Home() {
 function SOPCard({ sop, index, expanded, onToggle }: { sop: SOP; index: number; expanded: boolean; onToggle: () => void }) {
   return (
     <motion.div
-      initial={{ opacity: 0, x: -30 }}
+      initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: 0.55 + index * 0.05 }}
-      className="rounded-2xl overflow-hidden transition-all duration-400"
+      transition={{ delay: index * 0.03 }}
+      className="rounded-xl overflow-hidden transition-all"
       style={{
-        background: expanded ? 'rgba(216, 109, 203, 0.03)' : 'rgba(255, 255, 255, 0.015)',
-        border: expanded ? '1px solid rgba(216, 109, 203, 0.25)' : '1px solid rgba(255, 255, 255, 0.05)',
-        boxShadow: expanded ? '0 20px 60px rgba(216, 109, 203, 0.1)' : 'none',
+        background: expanded ? 'rgba(216, 109, 203, 0.03)' : 'rgba(255, 255, 255, 0.02)',
+        border: expanded ? '1px solid rgba(216, 109, 203, 0.2)' : '1px solid rgba(255, 255, 255, 0.05)',
       }}
     >
-      {/* SOP Header */}
-      <motion.div
-        className="flex items-center gap-4 md:gap-5 p-5 md:p-6 cursor-pointer transition-colors duration-200 group"
+      {/* Header */}
+      <div
+        className="flex items-center gap-4 p-4 cursor-pointer hover:bg-white/[0.02] transition-colors"
         onClick={onToggle}
-        whileHover={{ backgroundColor: 'rgba(216, 109, 203, 0.04)' }}
       >
-        <motion.div
-          className="w-12 h-12 md:w-[50px] md:h-[50px] rounded-xl flex items-center justify-center shrink-0 space-grotesk text-base font-bold"
+        <div
+          className="w-10 h-10 rounded-lg flex items-center justify-center font-display text-sm font-bold shrink-0"
           style={{
-            background: expanded
-              ? 'linear-gradient(135deg, #D86DCB, #8B5CF6)'
-              : 'linear-gradient(135deg, rgba(216, 109, 203, 0.12), rgba(139, 92, 246, 0.08))',
-            border: '1px solid rgba(216, 109, 203, 0.2)',
-            color: expanded ? '#fff' : '#D86DCB',
+            background: expanded ? 'linear-gradient(135deg, #D86DCB, #8B5CF6)' : 'rgba(216, 109, 203, 0.1)',
+            color: expanded ? 'white' : '#D86DCB',
           }}
-          whileHover={{ scale: 1.05 }}
         >
           {index + 1}
-        </motion.div>
-        <div className="flex-1 min-w-0">
-          <div className="space-grotesk text-[11px] font-semibold tracking-[1.5px] text-white/45 mb-1.5">{sop.id}</div>
-          <div className="text-[15px] font-medium truncate text-white/90">{sop.title}</div>
         </div>
-        <motion.button
-          className="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-300"
+        <div className="flex-1 min-w-0">
+          <div className="font-display text-[10px] font-semibold tracking-wider text-white/40 mb-0.5">{sop.id}</div>
+          <div className="text-sm font-medium text-white/90 truncate">{sop.title}</div>
+        </div>
+        <button
+          className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
           style={{
-            background: expanded ? 'linear-gradient(135deg, #D86DCB, #8B5CF6)' : 'rgba(255, 255, 255, 0.03)',
-            color: expanded ? 'white' : 'rgba(255, 255, 255, 0.45)',
+            background: expanded ? 'linear-gradient(135deg, #D86DCB, #8B5CF6)' : 'rgba(255, 255, 255, 0.05)',
+            color: expanded ? 'white' : 'rgba(255, 255, 255, 0.5)',
           }}
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
         >
           <ChevronIcon expanded={expanded} />
-        </motion.button>
-      </motion.div>
+        </button>
+      </div>
 
-      {/* SOP Details */}
+      {/* Expanded Content */}
       <AnimatePresence>
         {expanded && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+            transition={{ duration: 0.3 }}
             className="overflow-hidden"
           >
-            <div className="px-5 md:px-6 pb-6 border-t border-white/[0.04]">
+            <div className="px-4 pb-4 border-t border-white/5 pt-4">
               {/* Purpose */}
-              <motion.div
-                className="my-5 p-5 rounded-r-xl"
-                style={{
-                  background: 'linear-gradient(90deg, rgba(139, 92, 246, 0.08), transparent)',
-                  borderLeft: '3px solid #8B5CF6',
-                }}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 }}
+              <div
+                className="p-4 rounded-lg mb-4"
+                style={{ background: 'linear-gradient(90deg, rgba(139, 92, 246, 0.08), transparent)', borderLeft: '3px solid #8B5CF6' }}
               >
-                <h5 className="text-[11px] font-bold tracking-[1.5px] uppercase text-[#8B5CF6] mb-3">
-                  Purpose & Objective
-                </h5>
-                <p className="text-sm text-white/65 leading-relaxed">{sop.purpose}</p>
-              </motion.div>
+                <h5 className="text-xs font-bold tracking-wider uppercase text-[#8B5CF6] mb-2">Purpose</h5>
+                <p className="text-sm text-white/60 leading-relaxed">{sop.purpose}</p>
+              </div>
 
-              {/* Meta Grid */}
-              <motion.div
-                className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 my-5"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.15 }}
-              >
+              {/* Meta */}
+              <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-4">
                 {[
-                  { label: 'Process Owner', value: sop.owner, color: '#D86DCB' },
+                  { label: 'Owner', value: sop.owner, color: '#D86DCB' },
                   { label: 'Version', value: sop.version, color: '#fff' },
                   { label: 'Target', value: sop.kpis.target, color: '#00D26A' },
                   { label: 'Accuracy', value: sop.kpis.accuracy, color: '#00D26A' },
                   { label: 'SLA', value: sop.kpis.sla, color: '#fff' },
                   { label: 'Status', value: 'Active', color: '#00D26A' }
                 ].map((item, j) => (
-                  <motion.div
-                    key={j}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.2 + j * 0.03 }}
-                    className="p-4 rounded-xl"
-                    style={{ background: 'rgba(255, 255, 255, 0.02)' }}
-                  >
-                    <div className="text-[10px] font-semibold tracking-[1px] uppercase text-white/40 mb-2">
-                      {item.label}
-                    </div>
-                    <div className="text-sm font-semibold truncate" style={{ color: item.color }}>
-                      {item.value}
-                    </div>
-                  </motion.div>
+                  <div key={j} className="p-2.5 rounded-lg" style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
+                    <div className="text-[9px] font-semibold tracking-wider uppercase text-white/40 mb-1">{item.label}</div>
+                    <div className="text-xs font-semibold truncate" style={{ color: item.color }}>{item.value}</div>
+                  </div>
                 ))}
-              </motion.div>
+              </div>
 
-              {/* Process Flow */}
-              <motion.div
-                className="p-6 rounded-2xl my-5"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(216, 109, 203, 0.05), rgba(139, 92, 246, 0.03))',
-                  border: '1px solid rgba(216, 109, 203, 0.1)',
-                }}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.25 }}
-              >
-                <h5 className="text-[11px] font-bold tracking-[1.5px] uppercase text-[#D86DCB] mb-5 flex items-center gap-2.5">
-                  <FlowIcon />
-                  Interactive Process Flow
+              {/* Flow */}
+              <div className="p-4 rounded-xl mb-4" style={{ background: 'rgba(216, 109, 203, 0.03)', border: '1px solid rgba(216, 109, 203, 0.08)' }}>
+                <h5 className="text-xs font-bold tracking-wider uppercase text-[#D86DCB] mb-3 flex items-center gap-2">
+                  <FlowIcon /> Process Flow
                 </h5>
-                <div className="flex flex-wrap items-center gap-3">
+                <div className="flex flex-wrap items-center gap-2">
                   {sop.flow.map((step, j) => (
                     <div key={j} className="contents">
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.8 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: 0.3 + j * 0.05 }}
-                        whileHover={{
-                          y: -3,
-                          backgroundColor: 'rgba(216, 109, 203, 0.1)',
-                          borderColor: 'rgba(216, 109, 203, 0.4)',
-                        }}
-                        className="flex items-center gap-2.5 px-4 py-3 rounded-xl text-[13px] transition-all duration-200 cursor-default"
-                        style={{
-                          background: 'rgba(255, 255, 255, 0.03)',
-                          border: '1px solid rgba(255, 255, 255, 0.06)',
-                        }}
+                      <div
+                        className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs"
+                        style={{ background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.05)' }}
                       >
                         <span
-                          className="w-6 h-6 rounded-lg flex items-center justify-center text-[11px] font-bold text-white"
+                          className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold text-white"
                           style={{ background: 'linear-gradient(135deg, #D86DCB, #8B5CF6)' }}
                         >
                           {j + 1}
                         </span>
-                        <span className="text-white/80">{step}</span>
-                      </motion.div>
-                      {j < sop.flow.length - 1 && (
-                        <motion.span
-                          className="text-[#D86DCB] text-lg"
-                          initial={{ opacity: 0 }}
-                          animate={{ opacity: 1 }}
-                          transition={{ delay: 0.35 + j * 0.05 }}
-                        >
-                          ➔
-                        </motion.span>
-                      )}
+                        <span className="text-white/70">{step}</span>
+                      </div>
+                      {j < sop.flow.length - 1 && <span className="text-[#D86DCB]">→</span>}
                     </div>
                   ))}
                 </div>
-              </motion.div>
+              </div>
 
               {/* Actions */}
-              <motion.div
-                className="flex flex-wrap gap-4 mt-6"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.4 }}
-              >
+              <div className="flex flex-wrap gap-3">
                 <motion.button
-                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="flex items-center justify-center gap-2.5 px-6 py-4 rounded-xl text-sm font-semibold text-white"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white"
                   style={{
                     background: 'linear-gradient(135deg, #D86DCB, #B84CB8)',
-                    boxShadow: '0 8px 30px rgba(216, 109, 203, 0.35)',
+                    boxShadow: '0 4px 15px rgba(216, 109, 203, 0.3)',
                   }}
                 >
-                  <FlowIcon />
-                  View Full Process Flow
+                  <FlowIcon /> View Full Flow
                 </motion.button>
                 <motion.button
-                  whileHover={{ scale: 1.02, y: -2 }}
+                  whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="flex items-center justify-center gap-2.5 px-6 py-4 rounded-xl text-sm font-semibold"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold"
                   style={{
-                    background: 'rgba(0, 210, 106, 0.08)',
+                    background: 'rgba(0, 210, 106, 0.1)',
                     border: '1px solid rgba(0, 210, 106, 0.2)',
                     color: '#00D26A',
                   }}
                 >
-                  <DownloadIcon />
-                  Download DOCX
+                  <DownloadIcon /> Download DOCX
                 </motion.button>
-              </motion.div>
+              </div>
             </div>
           </motion.div>
         )}
