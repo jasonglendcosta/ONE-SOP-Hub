@@ -1,9 +1,156 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
-import { motion, AnimatePresence, useMotionValue, useTransform, useSpring } from "framer-motion";
+import { useState, useMemo, useEffect, useCallback } from "react";
+import { motion, AnimatePresence, useSpring, useTransform } from "framer-motion";
 import { departments, stats, type Department, type SOP } from "@/lib/data";
 import SOPAssistant from "@/components/SOPAssistant";
+
+// ============================================
+// DOCX GENERATION UTILITY
+// ============================================
+async function generateSOPDocument(sop: SOP, deptName: string) {
+  const { Document, Paragraph, TextRun, HeadingLevel, Table, TableRow, TableCell, WidthType, BorderStyle, AlignmentType } = await import('docx');
+  const { saveAs } = await import('file-saver');
+  const { Packer } = await import('docx');
+
+  const doc = new Document({
+    sections: [{
+      properties: {},
+      children: [
+        // Header
+        new Paragraph({
+          children: [
+            new TextRun({ text: "ONE DEVELOPMENT", bold: true, size: 32, color: "D86DCB" }),
+          ],
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 200 },
+        }),
+        new Paragraph({
+          children: [
+            new TextRun({ text: "Standard Operating Procedure", size: 24, color: "666666" }),
+          ],
+          alignment: AlignmentType.CENTER,
+          spacing: { after: 400 },
+        }),
+
+        // Title
+        new Paragraph({
+          text: sop.title,
+          heading: HeadingLevel.HEADING_1,
+          spacing: { after: 200 },
+        }),
+
+        // Meta Info Table
+        new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              children: [
+                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "SOP ID:", bold: true })] })] }),
+                new TableCell({ children: [new Paragraph(sop.id)] }),
+                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Version:", bold: true })] })] }),
+                new TableCell({ children: [new Paragraph(sop.version)] }),
+              ],
+            }),
+            new TableRow({
+              children: [
+                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Department:", bold: true })] })] }),
+                new TableCell({ children: [new Paragraph(deptName)] }),
+                new TableCell({ children: [new Paragraph({ children: [new TextRun({ text: "Owner:", bold: true })] })] }),
+                new TableCell({ children: [new Paragraph(sop.owner)] }),
+              ],
+            }),
+          ],
+        }),
+
+        new Paragraph({ text: "", spacing: { after: 300 } }),
+
+        // Purpose Section
+        new Paragraph({
+          text: "Purpose",
+          heading: HeadingLevel.HEADING_2,
+          spacing: { after: 100 },
+        }),
+        new Paragraph({
+          text: sop.purpose,
+          spacing: { after: 300 },
+        }),
+
+        // KPIs Section
+        new Paragraph({
+          text: "Key Performance Indicators",
+          heading: HeadingLevel.HEADING_2,
+          spacing: { after: 100 },
+        }),
+        new Table({
+          width: { size: 100, type: WidthType.PERCENTAGE },
+          rows: [
+            new TableRow({
+              children: [
+                new TableCell({
+                  children: [new Paragraph({ children: [new TextRun({ text: "Target", bold: true })] })],
+                  shading: { fill: "F3E8FF" },
+                }),
+                new TableCell({
+                  children: [new Paragraph({ children: [new TextRun({ text: "Accuracy", bold: true })] })],
+                  shading: { fill: "F3E8FF" },
+                }),
+                new TableCell({
+                  children: [new Paragraph({ children: [new TextRun({ text: "SLA", bold: true })] })],
+                  shading: { fill: "F3E8FF" },
+                }),
+              ],
+            }),
+            new TableRow({
+              children: [
+                new TableCell({ children: [new Paragraph(sop.kpis.target)] }),
+                new TableCell({ children: [new Paragraph(sop.kpis.accuracy)] }),
+                new TableCell({ children: [new Paragraph(sop.kpis.sla)] }),
+              ],
+            }),
+          ],
+        }),
+
+        new Paragraph({ text: "", spacing: { after: 300 } }),
+
+        // Process Flow Section
+        new Paragraph({
+          text: "Process Flow",
+          heading: HeadingLevel.HEADING_2,
+          spacing: { after: 100 },
+        }),
+        ...sop.flow.map((step, index) =>
+          new Paragraph({
+            children: [
+              new TextRun({ text: `Step ${index + 1}: `, bold: true }),
+              new TextRun(step),
+            ],
+            spacing: { after: 100 },
+            bullet: { level: 0 },
+          })
+        ),
+
+        // Footer
+        new Paragraph({ text: "", spacing: { after: 400 } }),
+        new Paragraph({
+          children: [
+            new TextRun({ text: "Generated by ONE Development SOP Hub", italics: true, color: "999999", size: 20 }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+        new Paragraph({
+          children: [
+            new TextRun({ text: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }), color: "999999", size: 20 }),
+          ],
+          alignment: AlignmentType.CENTER,
+        }),
+      ],
+    }],
+  });
+
+  const blob = await Packer.toBlob(doc);
+  saveAs(blob, `${sop.id}-${sop.title.replace(/[^a-zA-Z0-9]/g, '-')}.docx`);
+}
 
 // ============================================
 // ANIMATED COUNTER
@@ -112,6 +259,328 @@ const SparkleIcon = () => (
   </svg>
 );
 
+const CheckIcon = () => (
+  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+);
+
+const PlayIcon = () => (
+  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+    <polygon points="5 3 19 12 5 21 5 3" />
+  </svg>
+);
+
+// ============================================
+// PROCESS FLOW MODAL COMPONENT
+// ============================================
+function ProcessFlowModal({
+  sop,
+  deptName,
+  onClose
+}: {
+  sop: SOP;
+  deptName: string;
+  onClose: () => void;
+}) {
+  const [activeStep, setActiveStep] = useState<number | null>(null);
+  const [isAutoPlaying, setIsAutoPlaying] = useState(false);
+  const [currentAutoStep, setCurrentAutoStep] = useState(0);
+
+  // Auto-play animation
+  useEffect(() => {
+    if (!isAutoPlaying) return;
+
+    const interval = setInterval(() => {
+      setCurrentAutoStep(prev => {
+        if (prev >= sop.flow.length - 1) {
+          setIsAutoPlaying(false);
+          return 0;
+        }
+        return prev + 1;
+      });
+    }, 1500);
+
+    return () => clearInterval(interval);
+  }, [isAutoPlaying, sop.flow.length]);
+
+  const handleDownload = useCallback(async () => {
+    try {
+      await generateSOPDocument(sop, deptName);
+    } catch (error) {
+      console.error('Failed to generate document:', error);
+    }
+  }, [sop, deptName]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      style={{ background: 'rgba(5, 5, 10, 0.98)', backdropFilter: 'blur(20px)' }}
+      onClick={onClose}
+    >
+      <motion.div
+        initial={{ scale: 0.9, y: 50, opacity: 0 }}
+        animate={{ scale: 1, y: 0, opacity: 1 }}
+        exit={{ scale: 0.9, y: 30, opacity: 0 }}
+        transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+        className="w-full max-w-5xl max-h-[90vh] rounded-3xl overflow-hidden flex flex-col"
+        style={{
+          background: 'linear-gradient(180deg, rgba(20, 20, 35, 0.98) 0%, rgba(10, 10, 18, 0.99) 100%)',
+          border: '1px solid rgba(216, 109, 203, 0.3)',
+          boxShadow: '0 50px 100px rgba(0, 0, 0, 0.7), 0 0 80px rgba(216, 109, 203, 0.15)',
+        }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div
+          className="flex items-center justify-between p-6 border-b border-white/10"
+          style={{ background: 'linear-gradient(135deg, rgba(216, 109, 203, 0.15), rgba(139, 92, 246, 0.1))' }}
+        >
+          <div className="flex items-center gap-4">
+            <motion.div
+              className="w-14 h-14 rounded-2xl flex items-center justify-center"
+              style={{
+                background: 'linear-gradient(135deg, #D86DCB, #8B5CF6)',
+                boxShadow: '0 10px 30px rgba(216, 109, 203, 0.4)',
+              }}
+              animate={{ rotate: [0, 5, -5, 0] }}
+              transition={{ duration: 4, repeat: Infinity }}
+            >
+              <FlowIcon />
+            </motion.div>
+            <div>
+              <span className="font-display text-xs font-bold tracking-wider text-[#D86DCB]">
+                PROCESS FLOW VIEWER
+              </span>
+              <h2 className="font-display text-xl font-semibold text-white mt-1">
+                {sop.title}
+              </h2>
+              <p className="text-xs text-white/50 mt-1">{sop.id} • {deptName}</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <motion.button
+              onClick={() => {
+                setIsAutoPlaying(!isAutoPlaying);
+                setCurrentAutoStep(0);
+              }}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold"
+              style={{
+                background: isAutoPlaying
+                  ? 'linear-gradient(135deg, #D86DCB, #8B5CF6)'
+                  : 'rgba(216, 109, 203, 0.1)',
+                border: '1px solid rgba(216, 109, 203, 0.3)',
+                color: isAutoPlaying ? 'white' : '#D86DCB',
+              }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <PlayIcon />
+              {isAutoPlaying ? 'Playing...' : 'Auto Play'}
+            </motion.button>
+            <motion.button
+              onClick={handleDownload}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold"
+              style={{
+                background: 'rgba(0, 210, 106, 0.1)',
+                border: '1px solid rgba(0, 210, 106, 0.3)',
+                color: '#00D26A',
+              }}
+              whileHover={{ scale: 1.02, background: 'rgba(0, 210, 106, 0.2)' }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <DownloadIcon />
+              Download DOCX
+            </motion.button>
+            <motion.button
+              onClick={onClose}
+              className="w-10 h-10 rounded-xl flex items-center justify-center text-white/50 hover:text-white transition-colors"
+              style={{ background: 'rgba(255, 255, 255, 0.05)' }}
+              whileHover={{ rotate: 90, background: 'rgba(216, 109, 203, 0.2)' }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <CloseIcon />
+            </motion.button>
+          </div>
+        </div>
+
+        {/* Flow Content */}
+        <div className="flex-1 overflow-y-auto p-8">
+          {/* Purpose */}
+          <div className="mb-8 p-5 rounded-2xl" style={{
+            background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(216, 109, 203, 0.05))',
+            border: '1px solid rgba(139, 92, 246, 0.2)',
+          }}>
+            <h3 className="text-xs font-bold tracking-wider uppercase text-[#8B5CF6] mb-2 flex items-center gap-2">
+              <InfoIcon /> Purpose
+            </h3>
+            <p className="text-sm text-white/70 leading-relaxed">{sop.purpose}</p>
+          </div>
+
+          {/* Visual Flow */}
+          <div className="mb-8">
+            <h3 className="text-xs font-bold tracking-wider uppercase text-[#D86DCB] mb-6 flex items-center gap-2">
+              <FlowIcon /> Process Steps ({sop.flow.length} Steps)
+            </h3>
+
+            <div className="relative">
+              {/* Connection Line */}
+              <div
+                className="absolute left-8 top-8 bottom-8 w-0.5"
+                style={{ background: 'linear-gradient(180deg, #D86DCB, #8B5CF6, #D86DCB)' }}
+              />
+
+              {/* Steps */}
+              <div className="space-y-4">
+                {sop.flow.map((step, index) => {
+                  const isActive = activeStep === index || (isAutoPlaying && currentAutoStep === index);
+                  const isPast = isAutoPlaying && currentAutoStep > index;
+
+                  return (
+                    <motion.div
+                      key={index}
+                      initial={{ opacity: 0, x: -30 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: index * 0.1 }}
+                      className="relative flex items-start gap-6 cursor-pointer group"
+                      onClick={() => setActiveStep(activeStep === index ? null : index)}
+                    >
+                      {/* Step Number */}
+                      <motion.div
+                        className="relative z-10 w-16 h-16 rounded-2xl flex items-center justify-center shrink-0"
+                        style={{
+                          background: isActive || isPast
+                            ? 'linear-gradient(135deg, #D86DCB, #8B5CF6)'
+                            : 'rgba(216, 109, 203, 0.1)',
+                          border: isActive
+                            ? '2px solid #D86DCB'
+                            : '1px solid rgba(216, 109, 203, 0.2)',
+                          boxShadow: isActive
+                            ? '0 0 30px rgba(216, 109, 203, 0.5), 0 10px 30px rgba(216, 109, 203, 0.3)'
+                            : 'none',
+                        }}
+                        animate={isActive ? { scale: [1, 1.05, 1] } : {}}
+                        transition={{ duration: 1, repeat: isActive ? Infinity : 0 }}
+                      >
+                        {isPast ? (
+                          <CheckIcon />
+                        ) : (
+                          <span className={`font-display text-xl font-bold ${isActive || isPast ? 'text-white' : 'text-[#D86DCB]'}`}>
+                            {index + 1}
+                          </span>
+                        )}
+                      </motion.div>
+
+                      {/* Step Content */}
+                      <motion.div
+                        className="flex-1 p-5 rounded-2xl transition-all duration-300"
+                        style={{
+                          background: isActive
+                            ? 'rgba(216, 109, 203, 0.1)'
+                            : 'rgba(255, 255, 255, 0.02)',
+                          border: isActive
+                            ? '1px solid rgba(216, 109, 203, 0.3)'
+                            : '1px solid rgba(255, 255, 255, 0.05)',
+                        }}
+                        whileHover={{ background: 'rgba(216, 109, 203, 0.08)' }}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <span className="text-[10px] font-bold tracking-wider uppercase text-[#D86DCB] opacity-60">
+                              Step {index + 1}
+                            </span>
+                            <h4 className="text-lg font-semibold text-white mt-1">{step}</h4>
+                          </div>
+                          {isActive && (
+                            <motion.div
+                              initial={{ scale: 0 }}
+                              animate={{ scale: 1 }}
+                              className="px-3 py-1 rounded-full text-xs font-bold"
+                              style={{ background: 'rgba(0, 210, 106, 0.2)', color: '#00D26A' }}
+                            >
+                              Active
+                            </motion.div>
+                          )}
+                        </div>
+
+                        {/* Expanded details */}
+                        <AnimatePresence>
+                          {isActive && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0 }}
+                              animate={{ height: 'auto', opacity: 1 }}
+                              exit={{ height: 0, opacity: 0 }}
+                              className="overflow-hidden"
+                            >
+                              <div className="mt-4 pt-4 border-t border-white/10">
+                                <div className="grid grid-cols-3 gap-4">
+                                  <div className="p-3 rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.03)' }}>
+                                    <div className="text-[9px] font-bold tracking-wider uppercase text-white/40">Status</div>
+                                    <div className="text-sm font-semibold text-[#00D26A] mt-1">Ready</div>
+                                  </div>
+                                  <div className="p-3 rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.03)' }}>
+                                    <div className="text-[9px] font-bold tracking-wider uppercase text-white/40">Owner</div>
+                                    <div className="text-sm font-semibold text-white mt-1">{sop.owner}</div>
+                                  </div>
+                                  <div className="p-3 rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.03)' }}>
+                                    <div className="text-[9px] font-bold tracking-wider uppercase text-white/40">SLA</div>
+                                    <div className="text-sm font-semibold text-white mt-1">{sop.kpis.sla}</div>
+                                  </div>
+                                </div>
+                              </div>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </motion.div>
+
+                      {/* Arrow to next */}
+                      {index < sop.flow.length - 1 && (
+                        <div className="absolute left-8 -bottom-2 w-0.5 h-4 bg-gradient-to-b from-[#D86DCB] to-transparent" />
+                      )}
+                    </motion.div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+
+          {/* KPIs */}
+          <div className="p-5 rounded-2xl" style={{
+            background: 'rgba(0, 210, 106, 0.05)',
+            border: '1px solid rgba(0, 210, 106, 0.15)',
+          }}>
+            <h3 className="text-xs font-bold tracking-wider uppercase text-[#00D26A] mb-4 flex items-center gap-2">
+              <ChartIcon /> Performance Metrics
+            </h3>
+            <div className="grid grid-cols-3 gap-4">
+              {[
+                { label: 'Target', value: sop.kpis.target },
+                { label: 'Accuracy', value: sop.kpis.accuracy },
+                { label: 'SLA', value: sop.kpis.sla },
+              ].map((kpi, i) => (
+                <motion.div
+                  key={kpi.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 + i * 0.1 }}
+                  className="p-4 rounded-xl text-center"
+                  style={{ background: 'rgba(0, 210, 106, 0.1)' }}
+                >
+                  <div className="font-display text-2xl font-bold text-[#00D26A]">{kpi.value}</div>
+                  <div className="text-[10px] font-bold tracking-wider uppercase text-white/40 mt-1">{kpi.label}</div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </motion.div>
+  );
+}
+
 // ============================================
 // MAIN PAGE COMPONENT
 // ============================================
@@ -119,7 +588,9 @@ export default function Home() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedDept, setSelectedDept] = useState<Department | null>(null);
   const [expandedSOP, setExpandedSOP] = useState<string | null>(null);
+  const [flowViewerSOP, setFlowViewerSOP] = useState<{ sop: SOP; deptName: string } | null>(null);
   const [mounted, setMounted] = useState(false);
+  const [downloading, setDownloading] = useState<string | null>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -128,11 +599,14 @@ export default function Home() {
         e.preventDefault();
         document.getElementById('searchInput')?.focus();
       }
-      if (e.key === 'Escape') setSelectedDept(null);
+      if (e.key === 'Escape') {
+        if (flowViewerSOP) setFlowViewerSOP(null);
+        else setSelectedDept(null);
+      }
     };
     document.addEventListener('keydown', handleKeyDown);
     return () => document.removeEventListener('keydown', handleKeyDown);
-  }, []);
+  }, [flowViewerSOP]);
 
   const filteredDepts = useMemo(() => {
     if (!searchQuery.trim()) return departments;
@@ -144,6 +618,16 @@ export default function Home() {
       d.sops.some(s => s.title.toLowerCase().includes(q) || s.id.toLowerCase().includes(q))
     );
   }, [searchQuery]);
+
+  const handleDownloadSOP = useCallback(async (sop: SOP, deptName: string) => {
+    setDownloading(sop.id);
+    try {
+      await generateSOPDocument(sop, deptName);
+    } catch (error) {
+      console.error('Failed to generate document:', error);
+    }
+    setDownloading(null);
+  }, []);
 
   if (!mounted) return null;
 
@@ -340,7 +824,7 @@ export default function Home() {
               transition={{ delay: 0.1 + i * 0.05 }}
               whileHover={{ y: -8, scale: 1.02 }}
               onClick={() => setSelectedDept(dept)}
-              className="glass rounded-3xl p-6 cursor-pointer card-hover shimmer-container group"
+              className="glass rounded-3xl p-6 cursor-pointer card-hover shimmer-container group relative"
             >
               {/* Top Bar */}
               <div
@@ -464,9 +948,9 @@ export default function Home() {
       {/* ===== SOP ASSISTANT ===== */}
       <SOPAssistant />
 
-      {/* ===== MODAL ===== */}
+      {/* ===== DEPARTMENT MODAL ===== */}
       <AnimatePresence>
-        {selectedDept && (
+        {selectedDept && !flowViewerSOP && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -580,14 +1064,29 @@ export default function Home() {
                       key={sop.id}
                       sop={sop}
                       index={i}
+                      deptName={selectedDept.name}
                       expanded={expandedSOP === sop.id}
                       onToggle={() => setExpandedSOP(expandedSOP === sop.id ? null : sop.id)}
+                      onViewFlow={() => setFlowViewerSOP({ sop, deptName: selectedDept.name })}
+                      onDownload={() => handleDownloadSOP(sop, selectedDept.name)}
+                      isDownloading={downloading === sop.id}
                     />
                   ))}
                 </div>
               </div>
             </motion.div>
           </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ===== PROCESS FLOW MODAL ===== */}
+      <AnimatePresence>
+        {flowViewerSOP && (
+          <ProcessFlowModal
+            sop={flowViewerSOP.sop}
+            deptName={flowViewerSOP.deptName}
+            onClose={() => setFlowViewerSOP(null)}
+          />
         )}
       </AnimatePresence>
     </div>
@@ -597,7 +1096,25 @@ export default function Home() {
 // ============================================
 // SOP CARD COMPONENT
 // ============================================
-function SOPCard({ sop, index, expanded, onToggle }: { sop: SOP; index: number; expanded: boolean; onToggle: () => void }) {
+function SOPCard({
+  sop,
+  index,
+  deptName,
+  expanded,
+  onToggle,
+  onViewFlow,
+  onDownload,
+  isDownloading
+}: {
+  sop: SOP;
+  index: number;
+  deptName: string;
+  expanded: boolean;
+  onToggle: () => void;
+  onViewFlow: () => void;
+  onDownload: () => void;
+  isDownloading: boolean;
+}) {
   return (
     <motion.div
       initial={{ opacity: 0, x: -20 }}
@@ -675,13 +1192,13 @@ function SOPCard({ sop, index, expanded, onToggle }: { sop: SOP; index: number; 
                 ))}
               </div>
 
-              {/* Flow */}
+              {/* Flow Preview */}
               <div className="p-4 rounded-xl mb-4" style={{ background: 'rgba(216, 109, 203, 0.03)', border: '1px solid rgba(216, 109, 203, 0.08)' }}>
                 <h5 className="text-xs font-bold tracking-wider uppercase text-[#D86DCB] mb-3 flex items-center gap-2">
-                  <FlowIcon /> Process Flow
+                  <FlowIcon /> Process Flow ({sop.flow.length} Steps)
                 </h5>
                 <div className="flex flex-wrap items-center gap-2">
-                  {sop.flow.map((step, j) => (
+                  {sop.flow.slice(0, 4).map((step, j) => (
                     <div key={j} className="contents">
                       <div
                         className="flex items-center gap-2 px-3 py-2 rounded-lg text-xs"
@@ -695,15 +1212,22 @@ function SOPCard({ sop, index, expanded, onToggle }: { sop: SOP; index: number; 
                         </span>
                         <span className="text-white/70">{step}</span>
                       </div>
-                      {j < sop.flow.length - 1 && <span className="text-[#D86DCB]">→</span>}
+                      {j < Math.min(sop.flow.length - 1, 3) && <span className="text-[#D86DCB]">→</span>}
                     </div>
                   ))}
+                  {sop.flow.length > 4 && (
+                    <span className="text-xs text-white/40">+{sop.flow.length - 4} more steps</span>
+                  )}
                 </div>
               </div>
 
               {/* Actions */}
               <div className="flex flex-wrap gap-3">
                 <motion.button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onViewFlow();
+                  }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white"
@@ -715,16 +1239,35 @@ function SOPCard({ sop, index, expanded, onToggle }: { sop: SOP; index: number; 
                   <FlowIcon /> View Full Flow
                 </motion.button>
                 <motion.button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDownload();
+                  }}
+                  disabled={isDownloading}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50"
                   style={{
                     background: 'rgba(0, 210, 106, 0.1)',
                     border: '1px solid rgba(0, 210, 106, 0.2)',
                     color: '#00D26A',
                   }}
                 >
-                  <DownloadIcon /> Download DOCX
+                  {isDownloading ? (
+                    <>
+                      <motion.span
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                      >
+                        ⏳
+                      </motion.span>
+                      Generating...
+                    </>
+                  ) : (
+                    <>
+                      <DownloadIcon /> Download DOCX
+                    </>
+                  )}
                 </motion.button>
               </div>
             </div>
