@@ -16,46 +16,40 @@ interface Message {
 function searchSOPs(query: string): { dept: Department; sop: SOP; relevance: number }[] {
   const q = query.toLowerCase();
   const results: { dept: Department; sop: SOP; relevance: number }[] = [];
-  
+
   const keywords = q.split(/\s+/).filter(w => w.length > 2);
-  
+
   for (const dept of departments) {
     for (const sop of dept.sops) {
       let relevance = 0;
-      
-      // Check title
+
       if (sop.title.toLowerCase().includes(q)) relevance += 10;
       keywords.forEach(kw => {
         if (sop.title.toLowerCase().includes(kw)) relevance += 3;
       });
-      
-      // Check purpose
+
       if (sop.purpose.toLowerCase().includes(q)) relevance += 5;
       keywords.forEach(kw => {
         if (sop.purpose.toLowerCase().includes(kw)) relevance += 2;
       });
-      
-      // Check flow steps
+
       sop.flow.forEach(step => {
         if (step.toLowerCase().includes(q)) relevance += 3;
         keywords.forEach(kw => {
           if (step.toLowerCase().includes(kw)) relevance += 1;
         });
       });
-      
-      // Check department
+
       if (dept.name.toLowerCase().includes(q)) relevance += 4;
       if (dept.id.toLowerCase().includes(q)) relevance += 4;
-      
-      // Check SOP ID
       if (sop.id.toLowerCase().includes(q)) relevance += 8;
-      
+
       if (relevance > 0) {
         results.push({ dept, sop, relevance });
       }
     }
   }
-  
+
   return results.sort((a, b) => b.relevance - a.relevance).slice(0, 5);
 }
 
@@ -63,24 +57,21 @@ function searchSOPs(query: string): { dept: Department; sop: SOP; relevance: num
 function generateResponse(query: string): { content: string; sources: Message["sources"] } {
   const q = query.toLowerCase();
   const results = searchSOPs(query);
-  
-  // Greeting patterns
+
   if (q.match(/^(hi|hello|hey|good morning|good afternoon|good evening)/)) {
     return {
-      content: "Hello! 👋 I'm your ONE Development SOP Assistant. I can help you find information about any of our 80 Standard Operating Procedures across 16 departments.\n\nTry asking me:\n• \"How do we process broker commissions?\"\n• \"What's the SPA execution process?\"\n• \"Who handles RERA complaints?\"\n• \"Show me the lead qualification flow\"",
+      content: "Hello! I'm your **ONE Development SOP Assistant**.\n\nI have access to all 80 SOPs across 16 departments. Ask me anything about processes, workflows, responsibilities, or KPIs!\n\n**Try asking:**\n• \"How do we process broker commissions?\"\n• \"What's the URRF process?\"\n• \"Show me HR SOPs\"",
       sources: []
     };
   }
-  
-  // Help patterns
+
   if (q.match(/^(help|what can you do|how do you work)/)) {
     return {
-      content: "I'm your intelligent SOP guide! Here's what I can help with:\n\n🔍 **Find SOPs** - Search by topic, department, or process name\n📋 **Process Steps** - Get detailed workflow steps for any procedure\n👥 **Responsibilities** - Find out who's responsible for what\n📊 **KPIs** - Learn about performance targets and SLAs\n🏢 **Departments** - Explore SOPs by department\n\nJust ask me anything about ONE Development's processes!",
+      content: "I'm your intelligent SOP guide! Here's what I can help with:\n\n**Find SOPs** - Search by topic, department, or process name\n**Process Steps** - Get detailed workflow steps for any procedure\n**Responsibilities** - Find out who's responsible for what\n**KPIs** - Learn about performance targets and SLAs\n**Departments** - Explore SOPs by department\n\nJust ask me anything about ONE Development's processes!",
       sources: []
     };
   }
-  
-  // Department listing
+
   if (q.match(/^(list|show|what).*(department|dept)/)) {
     const deptList = departments.map(d => `• **${d.name}** (${d.id}) - ${d.sops.length} SOPs`).join("\n");
     return {
@@ -88,8 +79,7 @@ function generateResponse(query: string): { content: string; sources: Message["s
       sources: []
     };
   }
-  
-  // Specific department query
+
   for (const dept of departments) {
     if (q.includes(dept.id.toLowerCase()) || q.includes(dept.name.toLowerCase())) {
       const sopList = dept.sops.map(s => `• ${s.id}: ${s.title}`).join("\n");
@@ -99,40 +89,38 @@ function generateResponse(query: string): { content: string; sources: Message["s
       };
     }
   }
-  
-  // SOP-specific query
+
   if (results.length > 0) {
     const top = results[0];
     const otherResults = results.slice(1, 4);
-    
+
     let response = `**${top.sop.id}: ${top.sop.title}**\n\n`;
-    response += `📋 **Purpose:** ${top.sop.purpose}\n\n`;
-    response += `👤 **Process Owner:** ${top.sop.owner}\n`;
-    response += `🏢 **Department:** ${top.dept.name}\n`;
-    response += `📌 **Version:** ${top.sop.version}\n\n`;
-    response += `**📊 KPIs:**\n`;
+    response += `**Purpose:** ${top.sop.purpose}\n\n`;
+    response += `**Process Owner:** ${top.sop.owner}\n`;
+    response += `**Department:** ${top.dept.name}\n`;
+    response += `**Version:** ${top.sop.version}\n\n`;
+    response += `**KPIs:**\n`;
     response += `• Target: ${top.sop.kpis.target}\n`;
     response += `• Accuracy: ${top.sop.kpis.accuracy}\n`;
     response += `• SLA: ${top.sop.kpis.sla}\n\n`;
-    response += `**🔄 Process Flow:**\n`;
+    response += `**Process Flow:**\n`;
     response += top.sop.flow.map((step, i) => `${i + 1}. ${step}`).join("\n");
-    
+
     if (otherResults.length > 0) {
       response += `\n\n---\n**Related SOPs:**\n`;
       response += otherResults.map(r => `• ${r.sop.id}: ${r.sop.title}`).join("\n");
     }
-    
+
     return {
       content: response,
-      sources: results.map(r => ({ 
-        dept: r.dept.name, 
-        sop: r.sop.id, 
-        relevance: r.relevance > 8 ? "High" : r.relevance > 4 ? "Medium" : "Low" 
+      sources: results.map(r => ({
+        dept: r.dept.name,
+        sop: r.sop.id,
+        relevance: r.relevance > 8 ? "High" : r.relevance > 4 ? "Medium" : "Low"
       }))
     };
   }
-  
-  // No results found
+
   return {
     content: "I couldn't find a specific SOP matching your query. Here are some suggestions:\n\n• Try searching by department name (e.g., \"Sales\", \"Finance\", \"HR\")\n• Search by process type (e.g., \"commission\", \"booking\", \"handover\")\n• Ask about specific topics (e.g., \"RERA compliance\", \"payment collection\")\n\nWould you like me to list all departments?",
     sources: []
@@ -142,31 +130,25 @@ function generateResponse(query: string): { content: string; sources: Message["s
 // Icons
 const SendIcon = () => (
   <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <line x1="22" y1="2" x2="11" y2="13" />
-    <polygon points="22 2 15 22 11 13 2 9 22 2" />
+    <path d="M22 2L11 13" />
+    <path d="M22 2L15 22L11 13L2 9L22 2Z" />
   </svg>
 );
 
 const BotIcon = () => (
-  <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <rect x="3" y="11" width="18" height="10" rx="2" />
     <circle cx="12" cy="5" r="2" />
     <path d="M12 7v4" />
-    <line x1="8" y1="16" x2="8" y2="16" />
-    <line x1="16" y1="16" x2="16" y2="16" />
+    <circle cx="8" cy="16" r="1" fill="currentColor" />
+    <circle cx="16" cy="16" r="1" fill="currentColor" />
   </svg>
 );
 
 const UserIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
     <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
     <circle cx="12" cy="7" r="4" />
-  </svg>
-);
-
-const SparkleIcon = () => (
-  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M12 3v18M3 12h18M5.5 5.5l13 13M18.5 5.5l-13 13" />
   </svg>
 );
 
@@ -183,6 +165,12 @@ const MinimizeIcon = () => (
   </svg>
 );
 
+const SparkleIcon = () => (
+  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M12 0L14.59 9.41L24 12L14.59 14.59L12 24L9.41 14.59L0 12L9.41 9.41L12 0Z"/>
+  </svg>
+);
+
 export default function SOPAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -190,7 +178,7 @@ export default function SOPAssistant() {
     {
       id: "welcome",
       role: "assistant",
-      content: "👋 Hi! I'm your **ONE Development SOP Assistant**.\n\nI have access to all 80 SOPs across 16 departments. Ask me anything about processes, workflows, responsibilities, or KPIs!\n\n**Try asking:**\n• \"How do we handle broker commissions?\"\n• \"What's the URRF process?\"\n• \"Show me HR SOPs\"",
+      content: "Hello! I'm your **ONE Development SOP Assistant**.\n\nI have access to all 80 SOPs across 16 departments. Ask me anything about processes, workflows, responsibilities, or KPIs!\n\n**Try asking:**\n• \"How do we handle broker commissions?\"\n• \"What's the URRF process?\"\n• \"Show me HR SOPs\"",
       timestamp: new Date(),
       sources: []
     }
@@ -224,7 +212,6 @@ export default function SOPAssistant() {
     setInput("");
     setIsTyping(true);
 
-    // Simulate thinking delay
     await new Promise(resolve => setTimeout(resolve, 500 + Math.random() * 1000));
 
     const { content, sources } = generateResponse(input.trim());
@@ -248,61 +235,100 @@ export default function SOPAssistant() {
     }
   };
 
-  // Format message content with markdown-like styling
   const formatContent = (content: string) => {
     return content
       .split("\n")
       .map((line, i) => {
-        // Bold
         line = line.replace(/\*\*(.*?)\*\*/g, '<strong class="text-white font-semibold">$1</strong>');
-        // Headers
         if (line.startsWith("**") && line.endsWith("**")) {
           return <p key={i} className="font-semibold text-white mb-2" dangerouslySetInnerHTML={{ __html: line }} />;
         }
-        // Bullet points
         if (line.startsWith("• ") || line.startsWith("- ")) {
           return <p key={i} className="ml-4 mb-1" dangerouslySetInnerHTML={{ __html: line }} />;
         }
-        // Numbered list
         if (line.match(/^\d+\./)) {
           return <p key={i} className="ml-4 mb-1" dangerouslySetInnerHTML={{ __html: line }} />;
         }
-        // Divider
         if (line === "---") {
           return <hr key={i} className="border-white/10 my-3" />;
         }
-        // Regular line
         return line ? <p key={i} className="mb-2" dangerouslySetInnerHTML={{ __html: line }} /> : <br key={i} />;
       });
   };
 
   return (
     <>
-      {/* Floating Button */}
+      {/* Floating Button with Orbit Effect */}
       <AnimatePresence>
         {!isOpen && (
-          <motion.button
+          <motion.div
+            className="fixed bottom-6 right-6 z-50"
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full flex items-center justify-center text-white shadow-2xl"
-            style={{
-              background: "linear-gradient(135deg, #D86DCB, #8B5CF6)",
-              boxShadow: "0 8px 32px rgba(216, 109, 203, 0.4)",
-              animation: "pulse-glow 3s ease-in-out infinite"
-            }}
           >
-            <div className="relative">
-              <span className="text-2xl">🤖</span>
-              <span 
-                className="absolute -top-1 -right-1 w-3 h-3 rounded-full"
-                style={{ background: "#00D26A", animation: "pulse-dot 2s ease-in-out infinite" }}
+            {/* Orbit Ring */}
+            <motion.div
+              className="absolute inset-[-8px] rounded-full pointer-events-none"
+              style={{
+                border: '1px dashed rgba(216, 109, 203, 0.3)',
+              }}
+              animate={{ rotate: 360 }}
+              transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
+            />
+
+            {/* Orbiting Dot */}
+            <motion.div
+              className="absolute w-2 h-2 rounded-full pointer-events-none"
+              style={{
+                background: '#D86DCB',
+                boxShadow: '0 0 10px #D86DCB',
+                top: '50%',
+                left: '50%',
+              }}
+              animate={{
+                x: [0, 35, 0, -35, 0],
+                y: [-35, 0, 35, 0, -35],
+              }}
+              transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+            />
+
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setIsOpen(true)}
+              className="relative w-16 h-16 rounded-full flex items-center justify-center text-white"
+              style={{
+                background: "linear-gradient(135deg, #D86DCB, #8B5CF6)",
+                boxShadow: "0 8px 40px rgba(216, 109, 203, 0.5), 0 0 0 1px rgba(216, 109, 203, 0.3)",
+              }}
+            >
+              {/* Pulse ring */}
+              <motion.span
+                className="absolute inset-0 rounded-full"
+                style={{ border: '2px solid rgba(216, 109, 203, 0.5)' }}
+                animate={{
+                  scale: [1, 1.5],
+                  opacity: [0.5, 0],
+                }}
+                transition={{ duration: 2, repeat: Infinity }}
               />
-            </div>
-          </motion.button>
+
+              <span className="text-2xl relative z-10">🤖</span>
+
+              {/* Online indicator */}
+              <motion.span
+                className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center"
+                style={{
+                  background: '#00D26A',
+                  border: '2px solid #0a0a0f',
+                  boxShadow: '0 0 10px rgba(0, 210, 106, 0.5)',
+                }}
+                animate={{ scale: [1, 1.1, 1] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              />
+            </motion.button>
+          </motion.div>
         )}
       </AnimatePresence>
 
@@ -310,105 +336,151 @@ export default function SOPAssistant() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 20, scale: 0.95 }}
-            animate={{ 
-              opacity: 1, 
-              y: 0, 
+            initial={{ opacity: 0, y: 30, scale: 0.9 }}
+            animate={{
+              opacity: 1,
+              y: 0,
               scale: 1,
-              height: isMinimized ? "auto" : "600px"
+              height: isMinimized ? "auto" : "650px"
             }}
-            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            exit={{ opacity: 0, y: 30, scale: 0.9 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed bottom-6 right-6 z-50 w-[420px] max-w-[calc(100vw-48px)] rounded-[24px] overflow-hidden flex flex-col"
+            className="fixed bottom-6 right-6 z-50 w-[440px] max-w-[calc(100vw-48px)] rounded-[28px] overflow-hidden flex flex-col"
             style={{
-              background: "linear-gradient(180deg, rgba(20, 20, 30, 0.98) 0%, rgba(10, 10, 15, 0.98) 100%)",
-              border: "1px solid rgba(216, 109, 203, 0.3)",
-              boxShadow: "0 25px 80px rgba(0, 0, 0, 0.5), 0 0 40px rgba(216, 109, 203, 0.2)",
+              background: "linear-gradient(180deg, rgba(15, 15, 25, 0.98) 0%, rgba(8, 8, 15, 0.99) 100%)",
+              border: "1px solid rgba(216, 109, 203, 0.25)",
+              boxShadow: "0 30px 100px rgba(0, 0, 0, 0.6), 0 0 50px rgba(216, 109, 203, 0.15)",
               backdropFilter: "blur(20px)"
             }}
           >
             {/* Header */}
-            <div 
-              className="flex items-center justify-between p-4 border-b border-white/10"
-              style={{ background: "linear-gradient(135deg, rgba(216, 109, 203, 0.15), rgba(139, 92, 246, 0.1))" }}
+            <div
+              className="flex items-center justify-between p-5 border-b border-white/[0.06]"
+              style={{
+                background: "linear-gradient(135deg, rgba(216, 109, 203, 0.12), rgba(139, 92, 246, 0.08))",
+              }}
             >
-              <div className="flex items-center gap-3">
-                <div 
-                  className="w-10 h-10 rounded-xl flex items-center justify-center"
-                  style={{ background: "linear-gradient(135deg, #D86DCB, #8B5CF6)" }}
+              <div className="flex items-center gap-4">
+                <motion.div
+                  className="w-12 h-12 rounded-2xl flex items-center justify-center relative"
+                  style={{
+                    background: "linear-gradient(135deg, #D86DCB, #8B5CF6)",
+                    boxShadow: '0 8px 24px rgba(216, 109, 203, 0.3)',
+                  }}
+                  animate={{ rotate: [0, 5, -5, 0] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                 >
-                  <span className="text-lg">🤖</span>
-                </div>
+                  <span className="text-xl">🤖</span>
+                </motion.div>
                 <div>
-                  <h3 className="font-semibold text-white text-sm">SOP Assistant</h3>
-                  <p className="text-xs text-white/50">Powered by ONE Development</p>
+                  <h3 className="font-semibold text-white text-[15px] flex items-center gap-2">
+                    SOP Assistant
+                    <motion.span
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                    >
+                      <SparkleIcon />
+                    </motion.span>
+                  </h3>
+                  <div className="flex items-center gap-2 mt-1">
+                    <motion.span
+                      className="w-2 h-2 rounded-full"
+                      style={{ background: '#00D26A' }}
+                      animate={{ scale: [1, 1.2, 1] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                    />
+                    <span className="text-[11px] text-white/50 tracking-wide">
+                      ONE Development • 80 SOPs
+                    </span>
+                  </div>
                 </div>
               </div>
-              <div className="flex items-center gap-2">
-                <button
+              <div className="flex items-center gap-1.5">
+                <motion.button
                   onClick={() => setIsMinimized(!isMinimized)}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+                  className="w-9 h-9 rounded-xl flex items-center justify-center text-white/50 transition-all duration-200"
+                  style={{ background: 'rgba(255, 255, 255, 0.03)' }}
+                  whileHover={{ background: 'rgba(255, 255, 255, 0.08)', color: '#fff' }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   <MinimizeIcon />
-                </button>
-                <button
+                </motion.button>
+                <motion.button
                   onClick={() => setIsOpen(false)}
-                  className="w-8 h-8 rounded-lg flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+                  className="w-9 h-9 rounded-xl flex items-center justify-center text-white/50 transition-all duration-200"
+                  style={{ background: 'rgba(255, 255, 255, 0.03)' }}
+                  whileHover={{ background: 'rgba(216, 109, 203, 0.15)', color: '#D86DCB' }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   <CloseIcon />
-                </button>
+                </motion.button>
               </div>
             </div>
 
             {/* Messages */}
             {!isMinimized && (
               <>
-                <div className="flex-1 overflow-y-auto p-4 space-y-4">
-                  {messages.map((message) => (
+                <div className="flex-1 overflow-y-auto p-5 space-y-5">
+                  {messages.map((message, i) => (
                     <motion.div
                       key={message.id}
-                      initial={{ opacity: 0, y: 10 }}
+                      initial={{ opacity: 0, y: 15 }}
                       animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.05 }}
                       className={`flex gap-3 ${message.role === "user" ? "flex-row-reverse" : ""}`}
                     >
-                      <div 
-                        className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                          message.role === "user" 
-                            ? "bg-[#8B5CF6]" 
-                            : "bg-gradient-to-br from-[#D86DCB] to-[#8B5CF6]"
+                      <motion.div
+                        className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                          message.role === "user"
+                            ? "bg-[#8B5CF6]"
+                            : ""
                         }`}
+                        style={message.role === "assistant" ? {
+                          background: 'linear-gradient(135deg, #D86DCB, #8B5CF6)',
+                        } : {}}
+                        whileHover={{ scale: 1.05 }}
                       >
-                        {message.role === "user" ? <UserIcon /> : <span className="text-sm">🤖</span>}
-                      </div>
-                      <div 
+                        {message.role === "user" ? <UserIcon /> : <span className="text-base">🤖</span>}
+                      </motion.div>
+                      <div
                         className={`flex-1 rounded-2xl p-4 ${
                           message.role === "user"
-                            ? "bg-[#8B5CF6] text-white rounded-tr-sm"
-                            : "bg-white/5 text-white/80 rounded-tl-sm"
+                            ? "rounded-tr-md"
+                            : "rounded-tl-md"
                         }`}
                         style={{
                           maxWidth: "85%",
-                          border: message.role === "assistant" ? "1px solid rgba(255,255,255,0.05)" : "none"
+                          background: message.role === "user"
+                            ? "linear-gradient(135deg, #8B5CF6, #7C3AED)"
+                            : "rgba(255, 255, 255, 0.04)",
+                          border: message.role === "assistant" ? "1px solid rgba(255,255,255,0.06)" : "none",
+                          boxShadow: message.role === "user"
+                            ? "0 4px 20px rgba(139, 92, 246, 0.3)"
+                            : "none",
                         }}
                       >
-                        <div className="text-sm leading-relaxed">
+                        <div className="text-[13px] leading-relaxed text-white/85">
                           {formatContent(message.content)}
                         </div>
                         {message.sources && message.sources.length > 0 && (
-                          <div className="mt-3 pt-3 border-t border-white/10">
-                            <p className="text-[10px] uppercase tracking-wider text-white/40 mb-2">Sources</p>
-                            <div className="flex flex-wrap gap-1.5">
-                              {message.sources.map((source, i) => (
-                                <span 
-                                  key={i}
-                                  className="text-[10px] px-2 py-1 rounded-full"
-                                  style={{ 
-                                    background: "rgba(216, 109, 203, 0.15)",
+                          <div className="mt-4 pt-3 border-t border-white/[0.06]">
+                            <p className="text-[10px] uppercase tracking-[1.5px] text-white/35 mb-2.5 font-medium">Sources</p>
+                            <div className="flex flex-wrap gap-2">
+                              {message.sources.map((source, j) => (
+                                <motion.span
+                                  key={j}
+                                  initial={{ opacity: 0, scale: 0.9 }}
+                                  animate={{ opacity: 1, scale: 1 }}
+                                  transition={{ delay: j * 0.05 }}
+                                  className="text-[10px] px-2.5 py-1.5 rounded-lg font-medium"
+                                  style={{
+                                    background: "rgba(216, 109, 203, 0.1)",
+                                    border: "1px solid rgba(216, 109, 203, 0.15)",
                                     color: "#D86DCB"
                                   }}
                                 >
                                   {source.sop}
-                                </span>
+                                </motion.span>
                               ))}
                             </div>
                           </div>
@@ -416,37 +488,62 @@ export default function SOPAssistant() {
                       </div>
                     </motion.div>
                   ))}
-                  
+
                   {/* Typing indicator */}
-                  {isTyping && (
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      className="flex gap-3"
-                    >
-                      <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-gradient-to-br from-[#D86DCB] to-[#8B5CF6]">
-                        <span className="text-sm">🤖</span>
-                      </div>
-                      <div className="bg-white/5 rounded-2xl rounded-tl-sm p-4 border border-white/5">
-                        <div className="flex gap-1.5">
-                          <span className="w-2 h-2 rounded-full bg-[#D86DCB] animate-bounce" style={{ animationDelay: "0ms" }} />
-                          <span className="w-2 h-2 rounded-full bg-[#D86DCB] animate-bounce" style={{ animationDelay: "150ms" }} />
-                          <span className="w-2 h-2 rounded-full bg-[#D86DCB] animate-bounce" style={{ animationDelay: "300ms" }} />
+                  <AnimatePresence>
+                    {isTyping && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        className="flex gap-3"
+                      >
+                        <div
+                          className="w-9 h-9 rounded-xl flex items-center justify-center"
+                          style={{ background: 'linear-gradient(135deg, #D86DCB, #8B5CF6)' }}
+                        >
+                          <span className="text-base">🤖</span>
                         </div>
-                      </div>
-                    </motion.div>
-                  )}
-                  
+                        <div
+                          className="rounded-2xl rounded-tl-md p-4"
+                          style={{
+                            background: 'rgba(255, 255, 255, 0.04)',
+                            border: '1px solid rgba(255, 255, 255, 0.06)',
+                          }}
+                        >
+                          <div className="flex gap-2 items-center">
+                            {[0, 1, 2].map((i) => (
+                              <motion.span
+                                key={i}
+                                className="w-2.5 h-2.5 rounded-full"
+                                style={{ background: '#D86DCB' }}
+                                animate={{
+                                  y: [0, -6, 0],
+                                  opacity: [0.4, 1, 0.4],
+                                }}
+                                transition={{
+                                  duration: 0.8,
+                                  repeat: Infinity,
+                                  delay: i * 0.15,
+                                }}
+                              />
+                            ))}
+                          </div>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
                   <div ref={messagesEndRef} />
                 </div>
 
                 {/* Input */}
-                <div className="p-4 border-t border-white/10">
-                  <div 
-                    className="flex items-center gap-3 p-2 rounded-xl"
-                    style={{ 
-                      background: "rgba(255, 255, 255, 0.05)",
-                      border: "1px solid rgba(255, 255, 255, 0.1)"
+                <div className="p-4 border-t border-white/[0.06]">
+                  <div
+                    className="flex items-center gap-3 p-2.5 rounded-2xl transition-all duration-300"
+                    style={{
+                      background: "rgba(255, 255, 255, 0.04)",
+                      border: "1px solid rgba(255, 255, 255, 0.08)"
                     }}
                   >
                     <input
@@ -456,20 +553,27 @@ export default function SOPAssistant() {
                       onChange={(e) => setInput(e.target.value)}
                       onKeyDown={handleKeyDown}
                       placeholder="Ask about any SOP..."
-                      className="flex-1 bg-transparent text-white text-sm placeholder:text-white/40 focus:outline-none px-2"
+                      className="flex-1 bg-transparent text-white text-[14px] placeholder:text-white/35 focus:outline-none px-3"
                     />
-                    <button
+                    <motion.button
                       onClick={handleSend}
                       disabled={!input.trim() || isTyping}
-                      className="w-10 h-10 rounded-xl flex items-center justify-center text-white transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                      className="w-11 h-11 rounded-xl flex items-center justify-center text-white transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
                       style={{
-                        background: input.trim() ? "linear-gradient(135deg, #D86DCB, #8B5CF6)" : "rgba(255,255,255,0.1)"
+                        background: input.trim()
+                          ? "linear-gradient(135deg, #D86DCB, #8B5CF6)"
+                          : "rgba(255,255,255,0.06)",
+                        boxShadow: input.trim()
+                          ? "0 4px 20px rgba(216, 109, 203, 0.3)"
+                          : "none",
                       }}
+                      whileHover={input.trim() ? { scale: 1.05 } : {}}
+                      whileTap={input.trim() ? { scale: 0.95 } : {}}
                     >
                       <SendIcon />
-                    </button>
+                    </motion.button>
                   </div>
-                  <p className="text-[10px] text-white/30 text-center mt-2">
+                  <p className="text-[10px] text-white/25 text-center mt-3 tracking-wide">
                     Press Enter to send • 80 SOPs • 16 Departments
                   </p>
                 </div>
