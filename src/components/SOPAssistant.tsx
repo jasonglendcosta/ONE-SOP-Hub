@@ -262,14 +262,15 @@ export default function SOPAssistant() {
       <AnimatePresence>
         {!isOpen && (
           <motion.div
-            className="fixed bottom-6 right-6 z-50"
+            className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-50"
             initial={{ scale: 0, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0, opacity: 0 }}
+            style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
           >
-            {/* Orbit Ring */}
+            {/* Orbit Ring - Hidden on mobile for performance */}
             <motion.div
-              className="absolute inset-[-8px] rounded-full pointer-events-none"
+              className="absolute inset-[-8px] rounded-full pointer-events-none hidden sm:block"
               style={{
                 border: '1px dashed rgba(216, 109, 203, 0.3)',
               }}
@@ -277,9 +278,9 @@ export default function SOPAssistant() {
               transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
             />
 
-            {/* Orbiting Dot */}
+            {/* Orbiting Dot - Hidden on mobile for performance */}
             <motion.div
-              className="absolute w-2 h-2 rounded-full pointer-events-none"
+              className="absolute w-2 h-2 rounded-full pointer-events-none hidden sm:block"
               style={{
                 background: '#D86DCB',
                 boxShadow: '0 0 10px #D86DCB',
@@ -297,7 +298,7 @@ export default function SOPAssistant() {
               whileHover={{ scale: 1.1 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setIsOpen(true)}
-              className="relative w-16 h-16 rounded-full flex items-center justify-center text-white"
+              className="relative w-14 h-14 sm:w-16 sm:h-16 rounded-full flex items-center justify-center text-white touch-manipulation"
               style={{
                 background: "linear-gradient(135deg, #D86DCB, #8B5CF6)",
                 boxShadow: "0 8px 40px rgba(216, 109, 203, 0.5), 0 0 0 1px rgba(216, 109, 203, 0.3)",
@@ -314,11 +315,11 @@ export default function SOPAssistant() {
                 transition={{ duration: 2, repeat: Infinity }}
               />
 
-              <span className="text-2xl relative z-10">🤖</span>
+              <span className="text-xl sm:text-2xl relative z-10">🤖</span>
 
               {/* Online indicator */}
               <motion.span
-                className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full flex items-center justify-center"
+                className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 sm:w-4 sm:h-4 rounded-full flex items-center justify-center"
                 style={{
                   background: '#00D26A',
                   border: '2px solid #0a0a0f',
@@ -336,33 +337,41 @@ export default function SOPAssistant() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 30, scale: 0.9 }}
+            initial={{ opacity: 0, y: 30, scale: 0.95 }}
             animate={{
               opacity: 1,
               y: 0,
               scale: 1,
-              height: isMinimized ? "auto" : "650px"
+              height: isMinimized ? "auto" : undefined
             }}
-            exit={{ opacity: 0, y: 30, scale: 0.9 }}
+            exit={{ opacity: 0, y: 30, scale: 0.95 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            className="fixed bottom-6 right-6 z-50 w-[440px] max-w-[calc(100vw-48px)] rounded-[28px] overflow-hidden flex flex-col"
+            className="fixed inset-x-0 bottom-0 sm:inset-auto sm:bottom-6 sm:right-6 z-50 w-full sm:w-[440px] sm:max-w-[calc(100vw-48px)] rounded-t-[28px] sm:rounded-[28px] overflow-hidden flex flex-col"
             style={{
               background: "linear-gradient(180deg, rgba(15, 15, 25, 0.98) 0%, rgba(8, 8, 15, 0.99) 100%)",
               border: "1px solid rgba(216, 109, 203, 0.25)",
-              boxShadow: "0 30px 100px rgba(0, 0, 0, 0.6), 0 0 50px rgba(216, 109, 203, 0.15)",
-              backdropFilter: "blur(20px)"
+              boxShadow: "0 -10px 40px rgba(0, 0, 0, 0.4), 0 30px 100px rgba(0, 0, 0, 0.6), 0 0 50px rgba(216, 109, 203, 0.15)",
+              backdropFilter: "blur(20px)",
+              height: isMinimized ? "auto" : "min(650px, calc(100vh - 80px))",
+              maxHeight: isMinimized ? "auto" : "calc(100vh - env(safe-area-inset-top) - 20px)",
+              paddingBottom: 'env(safe-area-inset-bottom)',
             }}
           >
+            {/* Drag Handle for mobile */}
+            <div className="sm:hidden flex justify-center py-2 shrink-0">
+              <div className="w-10 h-1 rounded-full bg-white/20" />
+            </div>
+
             {/* Header */}
             <div
-              className="flex items-center justify-between p-5 border-b border-white/[0.06]"
+              className="flex items-center justify-between p-4 sm:p-5 border-b border-white/[0.06] shrink-0"
               style={{
                 background: "linear-gradient(135deg, rgba(216, 109, 203, 0.12), rgba(139, 92, 246, 0.08))",
               }}
             >
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3 sm:gap-4">
                 <motion.div
-                  className="w-12 h-12 rounded-2xl flex items-center justify-center relative"
+                  className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl flex items-center justify-center relative shrink-0"
                   style={{
                     background: "linear-gradient(135deg, #D86DCB, #8B5CF6)",
                     boxShadow: '0 8px 24px rgba(216, 109, 203, 0.3)',
@@ -370,10 +379,10 @@ export default function SOPAssistant() {
                   animate={{ rotate: [0, 5, -5, 0] }}
                   transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
                 >
-                  <span className="text-xl">🤖</span>
+                  <span className="text-lg sm:text-xl">🤖</span>
                 </motion.div>
                 <div>
-                  <h3 className="font-semibold text-white text-[15px] flex items-center gap-2">
+                  <h3 className="font-semibold text-white text-sm sm:text-[15px] flex items-center gap-2">
                     SOP Assistant
                     <motion.span
                       animate={{ rotate: 360 }}
@@ -382,23 +391,23 @@ export default function SOPAssistant() {
                       <SparkleIcon />
                     </motion.span>
                   </h3>
-                  <div className="flex items-center gap-2 mt-1">
+                  <div className="flex items-center gap-2 mt-0.5 sm:mt-1">
                     <motion.span
-                      className="w-2 h-2 rounded-full"
+                      className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full"
                       style={{ background: '#00D26A' }}
                       animate={{ scale: [1, 1.2, 1] }}
                       transition={{ duration: 2, repeat: Infinity }}
                     />
-                    <span className="text-[11px] text-white/50 tracking-wide">
+                    <span className="text-[10px] sm:text-[11px] text-white/50 tracking-wide">
                       ONE Development • 80 SOPs
                     </span>
                   </div>
                 </div>
               </div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1 sm:gap-1.5">
                 <motion.button
                   onClick={() => setIsMinimized(!isMinimized)}
-                  className="w-9 h-9 rounded-xl flex items-center justify-center text-white/50 transition-all duration-200"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl flex items-center justify-center text-white/50 transition-all duration-200 touch-manipulation"
                   style={{ background: 'rgba(255, 255, 255, 0.03)' }}
                   whileHover={{ background: 'rgba(255, 255, 255, 0.08)', color: '#fff' }}
                   whileTap={{ scale: 0.95 }}
@@ -407,7 +416,7 @@ export default function SOPAssistant() {
                 </motion.button>
                 <motion.button
                   onClick={() => setIsOpen(false)}
-                  className="w-9 h-9 rounded-xl flex items-center justify-center text-white/50 transition-all duration-200"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl flex items-center justify-center text-white/50 transition-all duration-200 touch-manipulation"
                   style={{ background: 'rgba(255, 255, 255, 0.03)' }}
                   whileHover={{ background: 'rgba(216, 109, 203, 0.15)', color: '#D86DCB' }}
                   whileTap={{ scale: 0.95 }}
@@ -420,17 +429,17 @@ export default function SOPAssistant() {
             {/* Messages */}
             {!isMinimized && (
               <>
-                <div className="flex-1 overflow-y-auto p-5 space-y-5">
+                <div className="flex-1 overflow-y-auto p-3 sm:p-5 space-y-4 sm:space-y-5 scroll-container">
                   {messages.map((message, i) => (
                     <motion.div
                       key={message.id}
                       initial={{ opacity: 0, y: 15 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.05 }}
-                      className={`flex gap-3 ${message.role === "user" ? "flex-row-reverse" : ""}`}
+                      className={`flex gap-2 sm:gap-3 ${message.role === "user" ? "flex-row-reverse" : ""}`}
                     >
                       <motion.div
-                        className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 ${
+                        className={`w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl flex items-center justify-center shrink-0 ${
                           message.role === "user"
                             ? "bg-[#8B5CF6]"
                             : ""
@@ -440,10 +449,10 @@ export default function SOPAssistant() {
                         } : {}}
                         whileHover={{ scale: 1.05 }}
                       >
-                        {message.role === "user" ? <UserIcon /> : <span className="text-base">🤖</span>}
+                        {message.role === "user" ? <UserIcon /> : <span className="text-sm sm:text-base">🤖</span>}
                       </motion.div>
                       <div
-                        className={`flex-1 rounded-2xl p-4 ${
+                        className={`flex-1 rounded-xl sm:rounded-2xl p-3 sm:p-4 ${
                           message.role === "user"
                             ? "rounded-tr-md"
                             : "rounded-tl-md"
@@ -459,20 +468,20 @@ export default function SOPAssistant() {
                             : "none",
                         }}
                       >
-                        <div className="text-[13px] leading-relaxed text-white/85">
+                        <div className="text-xs sm:text-[13px] leading-relaxed text-white/85">
                           {formatContent(message.content)}
                         </div>
                         {message.sources && message.sources.length > 0 && (
-                          <div className="mt-4 pt-3 border-t border-white/[0.06]">
-                            <p className="text-[10px] uppercase tracking-[1.5px] text-white/35 mb-2.5 font-medium">Sources</p>
-                            <div className="flex flex-wrap gap-2">
+                          <div className="mt-3 sm:mt-4 pt-2.5 sm:pt-3 border-t border-white/[0.06]">
+                            <p className="text-[9px] sm:text-[10px] uppercase tracking-[1.5px] text-white/35 mb-2 font-medium">Sources</p>
+                            <div className="flex flex-wrap gap-1.5 sm:gap-2">
                               {message.sources.map((source, j) => (
                                 <motion.span
                                   key={j}
                                   initial={{ opacity: 0, scale: 0.9 }}
                                   animate={{ opacity: 1, scale: 1 }}
                                   transition={{ delay: j * 0.05 }}
-                                  className="text-[10px] px-2.5 py-1.5 rounded-lg font-medium"
+                                  className="text-[9px] sm:text-[10px] px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-md sm:rounded-lg font-medium"
                                   style={{
                                     background: "rgba(216, 109, 203, 0.1)",
                                     border: "1px solid rgba(216, 109, 203, 0.15)",
@@ -496,26 +505,26 @@ export default function SOPAssistant() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: -10 }}
-                        className="flex gap-3"
+                        className="flex gap-2 sm:gap-3"
                       >
                         <div
-                          className="w-9 h-9 rounded-xl flex items-center justify-center"
+                          className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl flex items-center justify-center"
                           style={{ background: 'linear-gradient(135deg, #D86DCB, #8B5CF6)' }}
                         >
-                          <span className="text-base">🤖</span>
+                          <span className="text-sm sm:text-base">🤖</span>
                         </div>
                         <div
-                          className="rounded-2xl rounded-tl-md p-4"
+                          className="rounded-xl sm:rounded-2xl rounded-tl-md p-3 sm:p-4"
                           style={{
                             background: 'rgba(255, 255, 255, 0.04)',
                             border: '1px solid rgba(255, 255, 255, 0.06)',
                           }}
                         >
-                          <div className="flex gap-2 items-center">
+                          <div className="flex gap-1.5 sm:gap-2 items-center">
                             {[0, 1, 2].map((i) => (
                               <motion.span
                                 key={i}
-                                className="w-2.5 h-2.5 rounded-full"
+                                className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full"
                                 style={{ background: '#D86DCB' }}
                                 animate={{
                                   y: [0, -6, 0],
@@ -538,9 +547,9 @@ export default function SOPAssistant() {
                 </div>
 
                 {/* Input */}
-                <div className="p-4 border-t border-white/[0.06]">
+                <div className="p-3 sm:p-4 border-t border-white/[0.06] shrink-0">
                   <div
-                    className="flex items-center gap-3 p-2.5 rounded-2xl transition-all duration-300"
+                    className="flex items-center gap-2 sm:gap-3 p-2 sm:p-2.5 rounded-xl sm:rounded-2xl transition-all duration-300"
                     style={{
                       background: "rgba(255, 255, 255, 0.04)",
                       border: "1px solid rgba(255, 255, 255, 0.08)"
@@ -549,16 +558,19 @@ export default function SOPAssistant() {
                     <input
                       ref={inputRef}
                       type="text"
+                      inputMode="text"
+                      autoComplete="off"
+                      autoCorrect="off"
                       value={input}
                       onChange={(e) => setInput(e.target.value)}
                       onKeyDown={handleKeyDown}
                       placeholder="Ask about any SOP..."
-                      className="flex-1 bg-transparent text-white text-[14px] placeholder:text-white/35 focus:outline-none px-3"
+                      className="flex-1 bg-transparent text-white text-sm sm:text-[14px] placeholder:text-white/35 focus:outline-none px-2 sm:px-3"
                     />
                     <motion.button
                       onClick={handleSend}
                       disabled={!input.trim() || isTyping}
-                      className="w-11 h-11 rounded-xl flex items-center justify-center text-white transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed"
+                      className="w-10 h-10 sm:w-11 sm:h-11 rounded-lg sm:rounded-xl flex items-center justify-center text-white transition-all duration-300 disabled:opacity-40 disabled:cursor-not-allowed touch-manipulation shrink-0"
                       style={{
                         background: input.trim()
                           ? "linear-gradient(135deg, #D86DCB, #8B5CF6)"
@@ -573,8 +585,8 @@ export default function SOPAssistant() {
                       <SendIcon />
                     </motion.button>
                   </div>
-                  <p className="text-[10px] text-white/25 text-center mt-3 tracking-wide">
-                    Press Enter to send • 80 SOPs • 16 Departments
+                  <p className="text-[9px] sm:text-[10px] text-white/25 text-center mt-2 sm:mt-3 tracking-wide">
+                    <span className="hidden sm:inline">Press Enter to send • </span>80 SOPs • 16 Departments
                   </p>
                 </div>
               </>

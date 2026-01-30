@@ -281,3 +281,212 @@ body {
   outline: 2px solid #D86DCB;
   outline-offset: 2px;
 }
+
+/* ============================================
+   MOBILE OPTIMIZATIONS - iOS & ANDROID
+   ============================================ */
+
+/* Safe area support for notched devices */
+.safe-area-inset {
+  padding-top: env(safe-area-inset-top);
+  padding-right: env(safe-area-inset-right);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+}
+
+/* Touch optimizations */
+@media (hover: none) and (pointer: coarse) {
+  /* Larger touch targets */
+  button,
+  [role="button"],
+  .cursor-pointer {
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Remove hover effects on touch devices */
+  .card-hover:hover {
+    transform: none;
+    box-shadow: none;
+  }
+
+  /* Active state for touch */
+  .card-hover:active {
+    transform: scale(0.98);
+    transition: transform 0.1s ease;
+  }
+
+  /* Disable shimmer on touch devices for performance */
+  .shimmer-container:hover::after {
+    animation: none;
+  }
+}
+
+/* Remove tap highlight on mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Prevent text selection on interactive elements */
+button,
+[role="button"] {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Smooth scrolling for iOS */
+.overflow-y-auto,
+.overflow-x-auto,
+.overflow-auto {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Mobile-specific responsive utilities */
+@media screen and (max-width: 640px) {
+  /* Reduce animations on mobile for better performance */
+  @media (prefers-reduced-motion: no-preference) {
+    .animate-float {
+      animation-duration: 30s;
+    }
+
+    .animate-pulse-glow {
+      animation-duration: 4s;
+    }
+  }
+
+  /* Smaller glass blur on mobile for performance */
+  .glass {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+
+  /* Adjust font sizes for mobile readability */
+  .font-display {
+    letter-spacing: 0.02em;
+  }
+
+  /* Full-width modals on mobile */
+  .modal-mobile {
+    width: 100% !important;
+    max-width: 100% !important;
+    border-radius: 1.5rem 1.5rem 0 0 !important;
+    margin: 0 !important;
+    position: fixed !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    max-height: 90vh !important;
+  }
+
+  /* Stack grid items on mobile */
+  .grid-mobile-stack {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Smaller background orbs on mobile */
+  .bg-orb {
+    transform: scale(0.5);
+    filter: blur(60px);
+  }
+}
+
+/* Tablet optimizations */
+@media screen and (min-width: 641px) and (max-width: 1024px) {
+  .glass {
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+  }
+}
+
+/* iOS keyboard handling */
+@supports (-webkit-touch-callout: none) {
+  body {
+    min-height: -webkit-fill-available;
+  }
+
+  html {
+    height: -webkit-fill-available;
+  }
+}
+
+/* Android-specific fixes */
+@supports not (-webkit-touch-callout: none) {
+  .fixed-bottom-mobile {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+}
+
+/* Hide scrollbar on mobile but keep functionality */
+@media screen and (max-width: 768px) {
+  ::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    border-radius: 2px;
+  }
+}
+
+/* Prevent zoom on input focus (iOS) */
+@media screen and (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="search"],
+  input[type="password"],
+  textarea,
+  select {
+    font-size: 16px !important;
+  }
+}
+
+/* Mobile card improvements */
+@media screen and (max-width: 640px) {
+  .mobile-card {
+    padding: 1rem;
+    border-radius: 1rem;
+  }
+
+  .mobile-button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Reduced motion for accessibility */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+/* Landscape mobile optimizations */
+@media screen and (max-height: 500px) and (orientation: landscape) {
+  .hero-section {
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+  }
+
+  .modal-content {
+    max-height: 80vh;
+  }
+}
+
+/* Pull-to-refresh prevention on iOS */
+body {
+  overscroll-behavior-y: none;
+}
+
+/* Improve touch scroll performance */
+.scroll-container {
+  will-change: scroll-position;
+  contain: layout style paint;
+}
