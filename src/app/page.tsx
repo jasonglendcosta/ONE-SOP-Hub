@@ -345,10 +345,16 @@ function ProcessFlowModal({
           <div className="w-10 h-1 rounded-full bg-white/20" />
         </div>
 
-        {/* Header */}
+        {/* Premium Gradient Border Top */}
+        <div
+          className="absolute top-0 left-0 right-0 h-1 z-10 rounded-t-3xl"
+          style={{ background: 'linear-gradient(90deg, transparent, #C4A062, #D86DCB, #8B5CF6, #D86DCB, #C4A062, transparent)' }}
+        />
+
+        {/* Header - GOD TIER */}
         <div
           className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-6 border-b border-white/10 shrink-0 gap-3"
-          style={{ background: 'linear-gradient(135deg, rgba(216, 109, 203, 0.15), rgba(139, 92, 246, 0.1))' }}
+          style={{ background: 'linear-gradient(135deg, rgba(216, 109, 203, 0.15), rgba(196, 160, 98, 0.08), rgba(139, 92, 246, 0.1))' }}
         >
           <div className="flex items-center gap-3 sm:gap-4">
             <motion.div
@@ -664,34 +670,45 @@ export default function Home() {
 
   return (
     <div className="min-h-screen relative">
-      {/* ===== BACKGROUND ===== */}
+      {/* ===== GOD TIER BACKGROUND ===== */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {/* Orbs - Smaller on mobile for performance */}
+        {/* Pink Orb - Top Right */}
         <div
-          className="absolute w-[350px] sm:w-[500px] md:w-[700px] h-[350px] sm:h-[500px] md:h-[700px] rounded-full opacity-40 sm:opacity-50 -top-[150px] sm:-top-[250px] -right-[100px] sm:-right-[150px] animate-float bg-orb"
+          className="absolute w-[350px] sm:w-[500px] md:w-[700px] h-[350px] sm:h-[500px] md:h-[700px] rounded-full opacity-50 sm:opacity-60 -top-[150px] sm:-top-[250px] -right-[100px] sm:-right-[150px] animate-float bg-orb"
           style={{
-            background: 'radial-gradient(circle, rgba(216, 109, 203, 0.5) 0%, rgba(139, 92, 246, 0.2) 50%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(216, 109, 203, 0.6) 0%, rgba(139, 92, 246, 0.25) 50%, transparent 70%)',
             filter: 'blur(60px)',
           }}
         />
+        {/* Magenta Orb - Bottom Left */}
         <div
-          className="absolute w-[300px] sm:w-[450px] md:w-[600px] h-[300px] sm:h-[450px] md:h-[600px] rounded-full opacity-40 sm:opacity-50 -bottom-[100px] sm:-bottom-[200px] -left-[100px] sm:-left-[150px] animate-float bg-orb"
+          className="absolute w-[300px] sm:w-[450px] md:w-[600px] h-[300px] sm:h-[450px] md:h-[600px] rounded-full opacity-50 sm:opacity-60 -bottom-[100px] sm:-bottom-[200px] -left-[100px] sm:-left-[150px] animate-float bg-orb"
           style={{
-            background: 'radial-gradient(circle, rgba(184, 76, 184, 0.5) 0%, rgba(216, 109, 203, 0.2) 50%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(184, 76, 184, 0.6) 0%, rgba(216, 109, 203, 0.25) 50%, transparent 70%)',
             filter: 'blur(80px)',
             animationDelay: '-8s'
           }}
         />
+        {/* Purple Orb - Center */}
         <div
-          className="hidden sm:block absolute w-[300px] md:w-[500px] h-[300px] md:h-[500px] rounded-full opacity-30 top-[40%] left-[30%] animate-float bg-orb"
+          className="hidden sm:block absolute w-[300px] md:w-[500px] h-[300px] md:h-[500px] rounded-full opacity-40 top-[40%] left-[30%] animate-float bg-orb"
           style={{
-            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 60%)',
+            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.5) 0%, transparent 60%)',
             filter: 'blur(100px)',
             animationDelay: '-16s'
           }}
         />
+        {/* GOD TIER Gold Orb - Top Left */}
+        <div
+          className="absolute w-[250px] sm:w-[350px] md:w-[450px] h-[250px] sm:h-[350px] md:h-[450px] rounded-full opacity-40 sm:opacity-50 -top-[80px] sm:-top-[100px] -left-[80px] sm:-left-[100px] animate-float bg-orb"
+          style={{
+            background: 'radial-gradient(circle, rgba(196, 160, 98, 0.5) 0%, rgba(196, 160, 98, 0.15) 50%, transparent 70%)',
+            filter: 'blur(70px)',
+            animationDelay: '-12s'
+          }}
+        />
 
-        {/* Grid - Larger spacing on mobile */}
+        {/* Premium Grid Pattern */}
         <div
           className="absolute inset-0 opacity-[0.02] sm:opacity-[0.03]"
           style={{
@@ -699,6 +716,9 @@ export default function Home() {
             backgroundSize: '40px 40px'
           }}
         />
+
+        {/* Subtle Noise Texture Overlay */}
+        <div className="absolute inset-0 opacity-[0.015]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.65\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")' }} />
       </div>
 
       {/* ===== CONTENT ===== */}
@@ -721,28 +741,31 @@ export default function Home() {
               </p>
             </div>
 
-            {/* Badge */}
+            {/* Premium GOD TIER Badge */}
             <motion.div
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 rounded-full text-[10px] sm:text-xs font-bold tracking-[0.15em] sm:tracking-[0.2em] uppercase mb-6 sm:mb-8 animate-pulse-glow"
+              className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 rounded-full text-[10px] sm:text-xs font-bold tracking-[0.15em] sm:tracking-[0.2em] uppercase mb-6 sm:mb-8"
               style={{
-                background: 'linear-gradient(135deg, rgba(216, 109, 203, 0.15), rgba(139, 92, 246, 0.1))',
-                border: '1px solid rgba(216, 109, 203, 0.3)',
-                color: '#D86DCB',
+                background: 'linear-gradient(135deg, rgba(196, 160, 98, 0.15), rgba(216, 109, 203, 0.1), rgba(139, 92, 246, 0.08))',
+                border: '1px solid rgba(196, 160, 98, 0.4)',
+                color: '#C4A062',
+                boxShadow: '0 0 30px rgba(196, 160, 98, 0.2), 0 0 60px rgba(216, 109, 203, 0.1)',
               }}
             >
               <motion.span
-                animate={{ rotate: 360 }}
+                animate={{ rotate: 360, scale: [1, 1.2, 1] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                style={{ color: '#C4A062' }}
               >
                 <SparkleIcon />
               </motion.span>
-              <span>GOD TIER EDITION</span>
+              <span className="bg-gradient-to-r from-[#C4A062] via-[#E8D5A8] to-[#C4A062] bg-clip-text text-transparent">GOD TIER EDITION</span>
               <motion.span
-                animate={{ rotate: -360 }}
+                animate={{ rotate: -360, scale: [1, 1.2, 1] }}
                 transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
+                style={{ color: '#C4A062' }}
               >
                 <SparkleIcon />
               </motion.span>
@@ -805,8 +828,8 @@ export default function Home() {
           >
             {[
               { value: stats.totalSOPs, label: "Total SOPs", color: "#D86DCB" },
-              { value: stats.totalDepartments, label: "Departments", color: "#8B5CF6" },
-              { value: stats.totalFlows, label: "Workflows", color: "#B84CB8" },
+              { value: stats.totalDepartments, label: "Departments", color: "#C4A062" },
+              { value: stats.totalFlows, label: "Workflows", color: "#8B5CF6" },
               { value: stats.compliance, label: "RERA Compliant", color: "#00D26A" }
             ].map((stat, i) => (
               <motion.div
@@ -831,16 +854,18 @@ export default function Home() {
           </motion.div>
         </header>
 
-        {/* ===== DIVIDER ===== */}
+        {/* ===== GOD TIER DIVIDER ===== */}
         <div className="flex items-center justify-center gap-3 sm:gap-4 my-10 sm:my-16">
-          <div className="w-16 sm:w-24 h-px bg-gradient-to-r from-transparent via-[#D86DCB]/50 to-transparent" />
+          <div className="w-16 sm:w-32 h-px bg-gradient-to-r from-transparent via-[#C4A062]/40 to-transparent" />
           <motion.div
-            className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-gradient-to-br from-[#D86DCB] to-[#8B5CF6] rounded-sm"
-            animate={{ rotate: [45, 225, 45], scale: [1, 1.2, 1] }}
-            transition={{ duration: 4, repeat: Infinity }}
-            style={{ boxShadow: '0 0 20px rgba(216, 109, 203, 0.5)' }}
+            className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-sm animate-pulse-diamond"
+            style={{
+              background: 'linear-gradient(135deg, #D86DCB, #C4A062, #8B5CF6)',
+              transform: 'rotate(45deg)',
+              boxShadow: '0 0 25px rgba(196, 160, 98, 0.5), 0 0 50px rgba(216, 109, 203, 0.3)'
+            }}
           />
-          <div className="w-16 sm:w-24 h-px bg-gradient-to-r from-transparent via-[#D86DCB]/50 to-transparent" />
+          <div className="w-16 sm:w-32 h-px bg-gradient-to-r from-transparent via-[#C4A062]/40 to-transparent" />
         </div>
 
         {/* ===== SECTION TITLE ===== */}
@@ -856,15 +881,26 @@ export default function Home() {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.1 + i * 0.03 }}
-              whileHover={{ y: -8, scale: 1.02 }}
+              whileHover={{ y: -10, scale: 1.03 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setSelectedDept(dept)}
-              className="glass rounded-2xl sm:rounded-3xl p-4 sm:p-6 cursor-pointer card-hover shimmer-container group relative h-full flex flex-col active:bg-white/5 touch-manipulation"
+              className="glass rounded-2xl sm:rounded-3xl p-4 sm:p-6 cursor-pointer shimmer-container group relative h-full flex flex-col active:bg-white/5 touch-manipulation transition-all duration-500"
+              style={{
+                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.boxShadow = '0 25px 60px rgba(216, 109, 203, 0.25), 0 10px 30px rgba(139, 92, 246, 0.15)';
+                e.currentTarget.style.borderColor = 'rgba(216, 109, 203, 0.4)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.2)';
+                e.currentTarget.style.borderColor = 'rgba(216, 109, 203, 0.1)';
+              }}
             >
-              {/* Top Bar */}
+              {/* Premium Gradient Top Bar */}
               <div
-                className="absolute top-0 left-0 right-0 h-0.5 rounded-t-2xl sm:rounded-t-3xl opacity-0 group-hover:opacity-100 transition-opacity"
-                style={{ background: 'linear-gradient(90deg, transparent, #D86DCB, #8B5CF6, #D86DCB, transparent)' }}
+                className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl sm:rounded-t-3xl opacity-0 group-hover:opacity-100 transition-all duration-500"
+                style={{ background: 'linear-gradient(90deg, transparent 0%, #C4A062 20%, #D86DCB 50%, #8B5CF6 80%, transparent 100%)' }}
               />
 
               {/* Header */}
@@ -958,21 +994,25 @@ export default function Home() {
           </motion.div>
         )}
 
-        {/* ===== FOOTER ===== */}
+        {/* ===== GOD TIER FOOTER ===== */}
         <footer className="text-center mt-16 sm:mt-24 pt-8 sm:pt-12 border-t border-white/5 pb-8 sm:pb-4">
-          <div className="font-display text-lg sm:text-xl font-medium text-gradient-static mb-2 sm:mb-3">
-            ONE DEVELOPMENT
+          <div className="font-display text-lg sm:text-xl font-medium mb-2 sm:mb-3">
+            <span className="bg-gradient-to-r from-white via-[#C4A062] to-[#D86DCB] bg-clip-text text-transparent">ONE DEVELOPMENT</span>
           </div>
-          <p className="text-xs sm:text-sm text-white/40 mb-3 sm:mb-4">Enterprise-Grade SOPs • GOD TIER Precision</p>
+          <p className="text-xs sm:text-sm text-white/40 mb-3 sm:mb-4">Enterprise-Grade SOPs • <span className="text-[#C4A062]">GOD TIER</span> Precision</p>
           <div
             className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs"
             style={{
-              background: 'rgba(216, 109, 203, 0.08)',
-              border: '1px solid rgba(216, 109, 203, 0.15)',
-              color: 'rgba(216, 109, 203, 0.8)',
+              background: 'linear-gradient(135deg, rgba(196, 160, 98, 0.1), rgba(216, 109, 203, 0.08))',
+              border: '1px solid rgba(196, 160, 98, 0.2)',
+              color: 'rgba(196, 160, 98, 0.9)',
             }}
           >
-            <motion.span animate={{ rotate: 360 }} transition={{ duration: 3, repeat: Infinity, ease: "linear" }}>
+            <motion.span
+              animate={{ rotate: 360, scale: [1, 1.2, 1] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+              style={{ color: '#C4A062' }}
+            >
               ⚡
             </motion.span>
             January 2026 • Dubai, UAE
@@ -998,25 +1038,30 @@ export default function Home() {
               initial={{ scale: 0.95, y: 100, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.95, y: 100, opacity: 0 }}
-              transition={{ type: 'spring', damping: 25 }}
-              className="w-full max-w-4xl sm:my-8 rounded-t-3xl sm:rounded-3xl overflow-hidden max-h-[95vh] sm:max-h-[90vh] flex flex-col"
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="w-full max-w-4xl sm:my-8 rounded-t-3xl sm:rounded-3xl overflow-hidden max-h-[95vh] sm:max-h-[90vh] flex flex-col relative"
               style={{
-                background: 'linear-gradient(180deg, rgba(20, 20, 30, 0.98) 0%, rgba(10, 10, 18, 0.99) 100%)',
-                border: '1px solid rgba(216, 109, 203, 0.2)',
-                boxShadow: '0 -10px 40px rgba(0, 0, 0, 0.5), 0 30px 80px rgba(0, 0, 0, 0.5)',
+                background: 'linear-gradient(180deg, rgba(20, 20, 35, 0.98) 0%, rgba(10, 10, 18, 0.99) 100%)',
+                border: '1px solid rgba(216, 109, 203, 0.3)',
+                boxShadow: '0 -10px 40px rgba(0, 0, 0, 0.5), 0 50px 100px rgba(0, 0, 0, 0.7), 0 0 80px rgba(216, 109, 203, 0.15), 0 0 120px rgba(196, 160, 98, 0.1)',
                 paddingBottom: 'env(safe-area-inset-bottom)',
               }}
               onClick={(e) => e.stopPropagation()}
             >
+              {/* Premium Gradient Border Top */}
+              <div
+                className="absolute top-0 left-0 right-0 h-1 z-10"
+                style={{ background: 'linear-gradient(90deg, transparent, #C4A062, #D86DCB, #8B5CF6, #D86DCB, #C4A062, transparent)' }}
+              />
               {/* Drag Handle for mobile */}
               <div className="sm:hidden flex justify-center py-2">
                 <div className="w-10 h-1 rounded-full bg-white/20" />
               </div>
 
-              {/* Modal Header */}
+              {/* Modal Header - GOD TIER */}
               <div
                 className="flex items-center justify-between p-4 sm:p-6 border-b border-white/5 shrink-0"
-                style={{ background: 'linear-gradient(135deg, rgba(216, 109, 203, 0.08), rgba(139, 92, 246, 0.04))' }}
+                style={{ background: 'linear-gradient(135deg, rgba(216, 109, 203, 0.1), rgba(196, 160, 98, 0.05), rgba(139, 92, 246, 0.08))' }}
               >
                 <div className="flex items-center gap-3 sm:gap-4">
                   <motion.div

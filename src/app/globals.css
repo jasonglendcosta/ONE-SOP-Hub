@@ -140,6 +140,44 @@ body {
   to { transform: rotate(360deg) translateX(35px) rotate(-360deg); }
 }
 
+@keyframes pulse-diamond {
+  0%, 100% {
+    transform: rotate(45deg) scale(1);
+    box-shadow: 0 0 20px rgba(216, 109, 203, 0.3);
+  }
+  50% {
+    transform: rotate(45deg) scale(1.15);
+    box-shadow: 0 0 40px rgba(216, 109, 203, 0.6), 0 0 60px rgba(196, 160, 98, 0.3);
+  }
+}
+
+@keyframes glow-pulse-gold {
+  0%, 100% {
+    box-shadow: 0 0 20px rgba(196, 160, 98, 0.3), 0 0 40px rgba(196, 160, 98, 0.1);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(196, 160, 98, 0.5), 0 0 60px rgba(196, 160, 98, 0.2);
+  }
+}
+
+@keyframes text-shimmer {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 200% 50%;
+  }
+}
+
+@keyframes card-glow-in {
+  0% {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  }
+  100% {
+    box-shadow: 0 25px 60px rgba(216, 109, 203, 0.25), 0 10px 30px rgba(139, 92, 246, 0.15);
+  }
+}
+
 /* ============================================
    UTILITY CLASSES
    ============================================ */
@@ -169,9 +207,22 @@ body {
   animation: orbit 6s linear infinite;
 }
 
-/* Gradient Text */
+.animate-pulse-diamond {
+  animation: pulse-diamond 3s ease-in-out infinite;
+}
+
+.animate-glow-gold {
+  animation: glow-pulse-gold 3s ease-in-out infinite;
+}
+
+.animate-text-shimmer {
+  background-size: 200% auto;
+  animation: text-shimmer 3s linear infinite;
+}
+
+/* Gradient Text - GOD TIER */
 .text-gradient {
-  background: linear-gradient(135deg, #D86DCB 0%, #8B5CF6 50%, #D86DCB 100%);
+  background: linear-gradient(135deg, #D86DCB 0%, #C4A062 25%, #8B5CF6 50%, #D86DCB 75%, #C4A062 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -180,10 +231,19 @@ body {
 }
 
 .text-gradient-static {
-  background: linear-gradient(135deg, #fff 0%, #D86DCB 50%, #8B5CF6 100%);
+  background: linear-gradient(135deg, #fff 0%, #D86DCB 40%, #C4A062 60%, #8B5CF6 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #C4A062 0%, #E8D5A8 50%, #C4A062 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: gradient-shift 4s ease infinite;
 }
 
 /* Glass Effect */
@@ -208,6 +268,21 @@ body {
 
 .glow-purple {
   box-shadow: 0 0 40px rgba(139, 92, 246, 0.3);
+}
+
+.glow-gold {
+  box-shadow: 0 0 40px rgba(196, 160, 98, 0.3);
+}
+
+/* Premium card styling */
+.card-premium {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-premium:hover {
+  transform: translateY(-10px) scale(1.03);
+  box-shadow: 0 25px 60px rgba(216, 109, 203, 0.25), 0 10px 30px rgba(139, 92, 246, 0.15);
+  border-color: rgba(216, 109, 203, 0.4);
 }
 
 /* Card Hover */
