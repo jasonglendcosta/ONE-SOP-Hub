@@ -669,184 +669,273 @@ export default function Home() {
   if (!mounted) return null;
 
   return (
-    <div className="min-h-screen relative">
-      {/* ===== GOD TIER BACKGROUND ===== */}
+    <div className="min-h-screen relative overflow-hidden">
+      {/* ===== ULTIMATE GOD TIER BACKGROUND ===== */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {/* Pink Orb - Top Right */}
-        <div
-          className="absolute w-[350px] sm:w-[500px] md:w-[700px] h-[350px] sm:h-[500px] md:h-[700px] rounded-full opacity-50 sm:opacity-60 -top-[150px] sm:-top-[250px] -right-[100px] sm:-right-[150px] animate-float bg-orb"
+        {/* Primary Pink Orb - Top Right */}
+        <motion.div
+          className="absolute w-[400px] sm:w-[600px] md:w-[800px] h-[400px] sm:h-[600px] md:h-[800px] rounded-full -top-[200px] sm:-top-[300px] -right-[150px] sm:-right-[200px] bg-orb"
           style={{
-            background: 'radial-gradient(circle, rgba(216, 109, 203, 0.6) 0%, rgba(139, 92, 246, 0.25) 50%, transparent 70%)',
-            filter: 'blur(60px)',
-          }}
-        />
-        {/* Magenta Orb - Bottom Left */}
-        <div
-          className="absolute w-[300px] sm:w-[450px] md:w-[600px] h-[300px] sm:h-[450px] md:h-[600px] rounded-full opacity-50 sm:opacity-60 -bottom-[100px] sm:-bottom-[200px] -left-[100px] sm:-left-[150px] animate-float bg-orb"
-          style={{
-            background: 'radial-gradient(circle, rgba(184, 76, 184, 0.6) 0%, rgba(216, 109, 203, 0.25) 50%, transparent 70%)',
+            background: 'radial-gradient(circle, rgba(216, 109, 203, 0.7) 0%, rgba(139, 92, 246, 0.3) 40%, transparent 70%)',
             filter: 'blur(80px)',
-            animationDelay: '-8s'
           }}
+          animate={{
+            x: [0, 50, 0, -30, 0],
+            y: [0, -30, 20, 0],
+            scale: [1, 1.1, 0.95, 1.05, 1]
+          }}
+          transition={{ duration: 30, repeat: Infinity, ease: "easeInOut" }}
         />
-        {/* Purple Orb - Center */}
-        <div
-          className="hidden sm:block absolute w-[300px] md:w-[500px] h-[300px] md:h-[500px] rounded-full opacity-40 top-[40%] left-[30%] animate-float bg-orb"
+
+        {/* Secondary Magenta Orb - Bottom Left */}
+        <motion.div
+          className="absolute w-[350px] sm:w-[500px] md:w-[700px] h-[350px] sm:h-[500px] md:h-[700px] rounded-full -bottom-[150px] sm:-bottom-[250px] -left-[150px] sm:-left-[200px] bg-orb"
           style={{
-            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.5) 0%, transparent 60%)',
+            background: 'radial-gradient(circle, rgba(184, 76, 184, 0.7) 0%, rgba(216, 109, 203, 0.3) 40%, transparent 70%)',
             filter: 'blur(100px)',
-            animationDelay: '-16s'
           }}
+          animate={{
+            x: [0, -40, 30, 0],
+            y: [0, 40, -20, 0],
+            scale: [1, 0.95, 1.1, 1]
+          }}
+          transition={{ duration: 35, repeat: Infinity, ease: "easeInOut", delay: 5 }}
         />
-        {/* GOD TIER Gold Orb - Top Left */}
-        <div
-          className="absolute w-[250px] sm:w-[350px] md:w-[450px] h-[250px] sm:h-[350px] md:h-[450px] rounded-full opacity-40 sm:opacity-50 -top-[80px] sm:-top-[100px] -left-[80px] sm:-left-[100px] animate-float bg-orb"
+
+        {/* Purple Orb - Center Right */}
+        <motion.div
+          className="hidden sm:block absolute w-[400px] md:w-[600px] h-[400px] md:h-[600px] rounded-full top-[30%] right-[10%] bg-orb"
           style={{
-            background: 'radial-gradient(circle, rgba(196, 160, 98, 0.5) 0%, rgba(196, 160, 98, 0.15) 50%, transparent 70%)',
-            filter: 'blur(70px)',
-            animationDelay: '-12s'
+            background: 'radial-gradient(circle, rgba(139, 92, 246, 0.6) 0%, transparent 60%)',
+            filter: 'blur(120px)',
           }}
+          animate={{
+            x: [0, 60, -40, 0],
+            y: [0, -50, 30, 0],
+            scale: [1, 1.15, 0.9, 1]
+          }}
+          transition={{ duration: 40, repeat: Infinity, ease: "easeInOut", delay: 10 }}
+        />
+
+        {/* Premium Gold Orb - Top Left */}
+        <motion.div
+          className="absolute w-[300px] sm:w-[400px] md:w-[500px] h-[300px] sm:h-[400px] md:h-[500px] rounded-full -top-[100px] sm:-top-[150px] -left-[100px] sm:-left-[150px] bg-orb"
+          style={{
+            background: 'radial-gradient(circle, rgba(196, 160, 98, 0.6) 0%, rgba(232, 213, 168, 0.2) 40%, transparent 70%)',
+            filter: 'blur(90px)',
+          }}
+          animate={{
+            x: [0, 30, -20, 0],
+            y: [0, 20, -30, 0],
+            scale: [1, 1.08, 0.95, 1]
+          }}
+          transition={{ duration: 28, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+        />
+
+        {/* Fifth Orb - Center Bottom (New) */}
+        <motion.div
+          className="hidden md:block absolute w-[400px] h-[400px] rounded-full bottom-[10%] left-[40%] bg-orb"
+          style={{
+            background: 'radial-gradient(circle, rgba(196, 160, 98, 0.4) 0%, rgba(216, 109, 203, 0.2) 50%, transparent 70%)',
+            filter: 'blur(110px)',
+          }}
+          animate={{
+            x: [0, -50, 40, 0],
+            y: [0, 30, -40, 0],
+            scale: [1, 0.92, 1.12, 1]
+          }}
+          transition={{ duration: 32, repeat: Infinity, ease: "easeInOut", delay: 8 }}
         />
 
         {/* Premium Grid Pattern */}
         <div
-          className="absolute inset-0 opacity-[0.02] sm:opacity-[0.03]"
+          className="absolute inset-0 opacity-[0.025]"
           style={{
-            backgroundImage: 'linear-gradient(rgba(216, 109, 203, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(216, 109, 203, 0.5) 1px, transparent 1px)',
-            backgroundSize: '40px 40px'
+            backgroundImage: `
+              linear-gradient(rgba(196, 160, 98, 0.4) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(196, 160, 98, 0.4) 1px, transparent 1px)
+            `,
+            backgroundSize: '60px 60px'
           }}
         />
 
-        {/* Subtle Noise Texture Overlay */}
-        <div className="absolute inset-0 opacity-[0.015]" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'noise\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.65\' numOctaves=\'3\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23noise)\'/%3E%3C/svg%3E")' }} />
+        {/* Floating Particles */}
+        <div className="hidden sm:block">
+          {[...Array(8)].map((_, i) => (
+            <motion.div
+              key={i}
+              className={`particle ${['particle-gold', 'particle-pink', 'particle-purple'][i % 3]}`}
+              style={{
+                width: `${6 + (i % 3) * 4}px`,
+                height: `${6 + (i % 3) * 4}px`,
+                left: `${10 + i * 12}%`,
+                top: `${20 + (i % 4) * 20}%`,
+              }}
+              animate={{
+                y: [0, -40 - i * 10, 0],
+                x: [0, (i % 2 === 0 ? 20 : -20), 0],
+                opacity: [0.4, 0.9, 0.4],
+                scale: [1, 1.3, 1],
+              }}
+              transition={{
+                duration: 8 + i * 2,
+                repeat: Infinity,
+                ease: "easeInOut",
+                delay: i * 1.5,
+              }}
+            />
+          ))}
+        </div>
+
+        {/* Vignette overlay */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'radial-gradient(ellipse at center, transparent 0%, rgba(5, 5, 8, 0.4) 100%)'
+          }}
+        />
       </div>
 
-      {/* ===== CONTENT ===== */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12 safe-area-inset">
+      {/* ===== MAIN CONTENT ===== */}
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-16 safe-area-inset">
 
-        {/* ===== HEADER ===== */}
-        <header className="text-center mb-10 sm:mb-16 hero-section">
+        {/* ===== HERO HEADER ===== */}
+        <header className="text-center mb-12 sm:mb-20 hero-section">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+            transition={{ duration: 1, ease: "easeOut" }}
           >
-            {/* Logo */}
-            <div className="mb-6 sm:mb-8">
-              <h1 className="font-display text-4xl sm:text-6xl md:text-7xl font-light tracking-[0.2em] sm:tracking-[0.3em] text-gradient">
+            {/* Logo with Glow */}
+            <motion.div
+              className="mb-8 sm:mb-10 relative inline-block"
+              animate={{ scale: [1, 1.02, 1] }}
+              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+            >
+              <h1 className="font-display text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-bold tracking-tight text-gradient-hero">
                 ONE
               </h1>
-              <p className="font-display text-[10px] sm:text-xs tracking-[0.3em] sm:tracking-[0.5em] text-white/40 uppercase mt-1 sm:mt-2">
+              <motion.p
+                className="font-display text-xs sm:text-sm tracking-[0.4em] sm:tracking-[0.6em] text-white/50 uppercase mt-2 sm:mt-3"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+              >
                 Development
-              </p>
-            </div>
+              </motion.p>
+              {/* Subtle glow behind logo */}
+              <div
+                className="absolute inset-0 -z-10 blur-3xl opacity-30"
+                style={{ background: 'linear-gradient(135deg, #C4A062, #D86DCB, #8B5CF6)' }}
+              />
+            </motion.div>
 
-            {/* Premium GOD TIER Badge */}
+            {/* Premium Badge */}
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
+              initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 rounded-full text-[10px] sm:text-xs font-bold tracking-[0.15em] sm:tracking-[0.2em] uppercase mb-6 sm:mb-8"
-              style={{
-                background: 'linear-gradient(135deg, rgba(196, 160, 98, 0.15), rgba(216, 109, 203, 0.1), rgba(139, 92, 246, 0.08))',
-                border: '1px solid rgba(196, 160, 98, 0.4)',
-                color: '#C4A062',
-                boxShadow: '0 0 30px rgba(196, 160, 98, 0.2), 0 0 60px rgba(216, 109, 203, 0.1)',
-              }}
+              transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
+              className="badge-premium mb-8 sm:mb-10"
             >
               <motion.span
-                animate={{ rotate: 360, scale: [1, 1.2, 1] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                style={{ color: '#C4A062' }}
+                animate={{ rotate: 360 }}
+                transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+                className="text-[#C4A062]"
               >
                 <SparkleIcon />
               </motion.span>
-              <span className="bg-gradient-to-r from-[#C4A062] via-[#E8D5A8] to-[#C4A062] bg-clip-text text-transparent">GOD TIER EDITION</span>
+              <span className="text-gradient-gold">GOD TIER EDITION</span>
               <motion.span
-                animate={{ rotate: -360, scale: [1, 1.2, 1] }}
-                transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                style={{ color: '#C4A062' }}
+                animate={{ rotate: -360 }}
+                transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
+                className="text-[#C4A062]"
               >
                 <SparkleIcon />
               </motion.span>
             </motion.div>
 
-            {/* Title */}
+            {/* Main Title */}
             <motion.h2
-              className="font-display text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 text-gradient px-2"
-              initial={{ opacity: 0, y: 20 }}
+              className="font-display text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-bold mb-6 sm:mb-8 text-gradient leading-tight"
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+              transition={{ delay: 0.4, duration: 0.8 }}
             >
               SOP Command Center
             </motion.h2>
 
             {/* Subtitle */}
             <motion.p
-              className="text-sm sm:text-lg text-white/60 max-w-2xl mx-auto mb-8 sm:mb-12 px-4 leading-relaxed"
+              className="text-base sm:text-xl text-white/60 max-w-3xl mx-auto mb-10 sm:mb-14 px-4 leading-relaxed"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.4 }}
+              transition={{ delay: 0.5 }}
             >
               Enterprise-grade Standard Operating Procedures with complete process documentation,
               stakeholders, KPIs, and workflows for{' '}
-              <span className="text-[#D86DCB] font-semibold">{stats.totalDepartments} departments</span>.
+              <span className="text-gradient-gold font-semibold">{stats.totalDepartments} departments</span>.
             </motion.p>
           </motion.div>
 
-          {/* Search */}
+          {/* Premium Search Bar */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="max-w-xl mx-auto mb-8 sm:mb-12 px-2"
-          >
-            <div className="relative">
-              <div className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-[#D86DCB]">
-                <SearchIcon />
-              </div>
-              <input
-                id="searchInput"
-                type="search"
-                inputMode="search"
-                autoComplete="off"
-                autoCorrect="off"
-                placeholder="Search departments, SOPs..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full py-3 sm:py-4 pl-10 sm:pl-12 pr-3 sm:pr-4 rounded-xl sm:rounded-2xl text-base text-white placeholder:text-white/40 bg-white/5 border border-white/10 focus:border-[#D86DCB]/50 focus:outline-none focus:ring-2 focus:ring-[#D86DCB]/20 transition-all"
-              />
-            </div>
-          </motion.div>
-
-          {/* Stats */}
-          <motion.div
-            className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 max-w-3xl mx-auto px-2"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
+            className="max-w-2xl mx-auto mb-12 sm:mb-16 px-4"
+          >
+            <div className="relative group">
+              <div className="absolute -inset-1 rounded-2xl bg-gradient-to-r from-[#C4A062]/20 via-[#D86DCB]/20 to-[#8B5CF6]/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              <div className="relative">
+                <div className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 text-[#C4A062]">
+                  <SearchIcon />
+                </div>
+                <input
+                  id="searchInput"
+                  type="search"
+                  inputMode="search"
+                  autoComplete="off"
+                  autoCorrect="off"
+                  placeholder="Search departments, SOPs, workflows..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="input-premium w-full"
+                />
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Stats Grid */}
+          <motion.div
+            className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5 max-w-4xl mx-auto"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
           >
             {[
               { value: stats.totalSOPs, label: "Total SOPs", color: "#D86DCB" },
               { value: stats.totalDepartments, label: "Departments", color: "#C4A062" },
               { value: stats.totalFlows, label: "Workflows", color: "#8B5CF6" },
-              { value: stats.compliance, label: "RERA Compliant", color: "#00D26A" }
+              { value: stats.compliance, label: "Compliance", color: "#00D26A" }
             ].map((stat, i) => (
               <motion.div
                 key={stat.label}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 + i * 0.1 }}
-                whileHover={{ y: -4, scale: 1.02 }}
-                className="glass rounded-xl sm:rounded-2xl p-3 sm:p-6 text-center cursor-default shimmer-container"
+                transition={{ delay: 0.8 + i * 0.1 }}
+                whileHover={{ y: -8, scale: 1.03 }}
+                className="stat-card shimmer-container"
+                style={{ '--stat-color': stat.color } as React.CSSProperties}
               >
-                <div
-                  className="font-display text-2xl sm:text-4xl md:text-5xl font-bold mb-1 sm:mb-2"
+                <motion.div
+                  className="font-display text-3xl sm:text-5xl md:text-6xl font-bold mb-2"
                   style={{ color: stat.color }}
+                  animate={{ scale: [1, 1.02, 1] }}
+                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: i * 0.5 }}
                 >
-                  <AnimatedCounter value={stat.value} duration={2 + i * 0.3} />
-                </div>
-                <div className="text-[10px] sm:text-xs text-white/50 uppercase tracking-wider">
+                  <AnimatedCounter value={stat.value} duration={2.5 + i * 0.3} />
+                </motion.div>
+                <div className="text-[11px] sm:text-xs text-white/50 uppercase tracking-[0.15em] font-medium">
                   {stat.label}
                 </div>
               </motion.div>
@@ -854,126 +943,110 @@ export default function Home() {
           </motion.div>
         </header>
 
-        {/* ===== GOD TIER DIVIDER ===== */}
-        <div className="flex items-center justify-center gap-3 sm:gap-4 my-10 sm:my-16">
-          <div className="w-16 sm:w-32 h-px bg-gradient-to-r from-transparent via-[#C4A062]/40 to-transparent" />
+        {/* ===== PREMIUM DIVIDER ===== */}
+        <div className="divider-premium my-12 sm:my-20">
           <motion.div
-            className="w-2.5 h-2.5 sm:w-3 sm:h-3 rounded-sm animate-pulse-diamond"
-            style={{
-              background: 'linear-gradient(135deg, #D86DCB, #C4A062, #8B5CF6)',
-              transform: 'rotate(45deg)',
-              boxShadow: '0 0 25px rgba(196, 160, 98, 0.5), 0 0 50px rgba(216, 109, 203, 0.3)'
-            }}
+            className="divider-line w-20 sm:w-40"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 1, duration: 0.8 }}
           />
-          <div className="w-16 sm:w-32 h-px bg-gradient-to-r from-transparent via-[#C4A062]/40 to-transparent" />
+          <motion.div
+            className="divider-diamond"
+            initial={{ scale: 0, rotate: 0 }}
+            animate={{ scale: 1, rotate: 45 }}
+            transition={{ delay: 1.2, type: "spring", stiffness: 200 }}
+          />
+          <motion.div
+            className="divider-line w-20 sm:w-40"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 1, duration: 0.8 }}
+          />
         </div>
 
         {/* ===== SECTION TITLE ===== */}
-        <h3 className="font-display text-center text-[10px] sm:text-xs font-semibold tracking-[0.2em] sm:tracking-[0.3em] uppercase text-white/40 mb-6 sm:mb-10 px-4">
+        <motion.h3
+          className="font-display text-center text-xs sm:text-sm font-semibold tracking-[0.25em] uppercase text-white/40 mb-8 sm:mb-12"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.3 }}
+        >
           Department SOPs
-        </h3>
+        </motion.h3>
 
         {/* ===== DEPARTMENT GRID ===== */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 items-stretch px-1">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {filteredDepts.map((dept, i) => (
             <motion.div
               key={dept.id}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 + i * 0.03 }}
-              whileHover={{ y: -10, scale: 1.03 }}
+              transition={{ delay: 0.1 + i * 0.05, duration: 0.6 }}
+              whileHover={{ y: -12, scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               onClick={() => setSelectedDept(dept)}
-              className="glass rounded-2xl sm:rounded-3xl p-4 sm:p-6 cursor-pointer shimmer-container group relative h-full flex flex-col active:bg-white/5 touch-manipulation transition-all duration-500"
-              style={{
-                boxShadow: '0 4px 20px rgba(0, 0, 0, 0.2)',
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.boxShadow = '0 25px 60px rgba(216, 109, 203, 0.25), 0 10px 30px rgba(139, 92, 246, 0.15)';
-                e.currentTarget.style.borderColor = 'rgba(216, 109, 203, 0.4)';
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.2)';
-                e.currentTarget.style.borderColor = 'rgba(216, 109, 203, 0.1)';
-              }}
+              className="glass-card card-premium card-border-animate rounded-2xl sm:rounded-3xl p-5 sm:p-7 cursor-pointer group relative flex flex-col touch-manipulation"
             >
-              {/* Premium Gradient Top Bar */}
-              <div
-                className="absolute top-0 left-0 right-0 h-1 rounded-t-2xl sm:rounded-t-3xl opacity-0 group-hover:opacity-100 transition-all duration-500"
-                style={{ background: 'linear-gradient(90deg, transparent 0%, #C4A062 20%, #D86DCB 50%, #8B5CF6 80%, transparent 100%)' }}
-              />
-
-              {/* Header */}
-              <div className="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-5">
+              {/* Card Header */}
+              <div className="flex items-start gap-4 mb-5">
                 <motion.div
-                  className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center text-2xl sm:text-3xl shrink-0"
-                  whileHover={{ scale: 1.1, rotate: 5 }}
+                  className="card-icon w-14 h-14 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center text-2xl sm:text-3xl"
                   style={{
-                    background: 'linear-gradient(135deg, rgba(216, 109, 203, 0.15), rgba(139, 92, 246, 0.1))',
-                    border: '1px solid rgba(216, 109, 203, 0.2)',
+                    background: 'linear-gradient(135deg, rgba(216, 109, 203, 0.2), rgba(139, 92, 246, 0.15))',
+                    border: '1px solid rgba(216, 109, 203, 0.25)',
+                    boxShadow: '0 8px 25px rgba(216, 109, 203, 0.15)',
                   }}
                 >
                   {dept.icon}
                 </motion.div>
                 <div className="flex-1 min-w-0">
                   <span
-                    className="inline-block text-[9px] sm:text-[10px] font-bold tracking-wider uppercase px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md mb-1.5 sm:mb-2"
+                    className="inline-block text-[10px] font-bold tracking-wider uppercase px-2.5 py-1 rounded-md mb-2"
                     style={{
-                      background: 'rgba(216, 109, 203, 0.1)',
-                      color: '#D86DCB',
-                      border: '1px solid rgba(216, 109, 203, 0.15)',
+                      background: 'linear-gradient(135deg, rgba(196, 160, 98, 0.15), rgba(216, 109, 203, 0.1))',
+                      color: '#C4A062',
+                      border: '1px solid rgba(196, 160, 98, 0.2)',
                     }}
                   >
                     {dept.id}
                   </span>
-                  <h4 className="font-display text-base sm:text-lg font-semibold text-white truncate">
+                  <h4 className="font-display text-lg sm:text-xl font-semibold text-white truncate">
                     {dept.name}
                   </h4>
-                  <p className="text-[11px] sm:text-xs text-white/50 mt-0.5 sm:mt-1">
-                    Owner: <span className="text-[#D86DCB]">{dept.owner}</span>
+                  <p className="text-xs text-white/50 mt-1">
+                    Owner: <span className="text-[#C4A062]">{dept.owner}</span>
                   </p>
                 </div>
               </div>
 
               {/* Stats Row */}
-              <div className="flex gap-3 sm:gap-4 py-2.5 sm:py-3 border-t border-b border-white/5 mb-4 sm:mb-5">
-                <div className="flex items-center gap-1.5 sm:gap-2">
+              <div className="flex gap-5 py-4 border-t border-b border-white/[0.06] mb-5">
+                <div className="flex items-center gap-2">
                   <span className="text-[#D86DCB]"><FileIcon /></span>
-                  <span className="text-xs sm:text-sm text-white/60">
-                    <strong className="text-white">{dept.sops.length}</strong> SOPs
+                  <span className="text-sm text-white/60">
+                    <strong className="text-white font-semibold">{dept.sops.length}</strong> SOPs
                   </span>
                 </div>
-                <div className="flex items-center gap-1.5 sm:gap-2">
+                <div className="flex items-center gap-2">
                   <span className="text-[#8B5CF6]"><FlowIcon /></span>
-                  <span className="text-xs sm:text-sm text-white/60">
-                    <strong className="text-white">{dept.sops.length}</strong> Flows
+                  <span className="text-sm text-white/60">
+                    <strong className="text-white font-semibold">{dept.sops.length}</strong> Flows
                   </span>
                 </div>
               </div>
 
-              {/* Footer */}
-              <div className="flex items-center justify-between mt-auto pt-1 sm:pt-2">
+              {/* Card Footer */}
+              <div className="flex items-center justify-between mt-auto">
                 <motion.button
-                  whileHover={{ scale: 1.03 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold text-white"
-                  style={{
-                    background: 'linear-gradient(135deg, #D86DCB, #B84CB8)',
-                    boxShadow: '0 4px 15px rgba(216, 109, 203, 0.3)',
-                  }}
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="btn-premium flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold"
                 >
                   View SOPs
                   <ArrowIcon />
                 </motion.button>
-                <div
-                  className="flex items-center gap-1 sm:gap-1.5 text-[9px] sm:text-[10px] font-semibold px-2 sm:px-3 py-1 sm:py-1.5 rounded-full"
-                  style={{
-                    background: 'rgba(0, 210, 106, 0.1)',
-                    border: '1px solid rgba(0, 210, 106, 0.2)',
-                    color: '#00D26A',
-                  }}
-                >
-                  <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-[#00D26A] animate-pulse" />
+                <div className="badge-rera">
                   RERA
                 </div>
               </div>
