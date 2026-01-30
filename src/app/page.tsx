@@ -322,31 +322,37 @@ function ProcessFlowModal({
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4"
+      className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center sm:p-4"
       style={{ background: 'rgba(5, 5, 10, 0.98)', backdropFilter: 'blur(20px)' }}
       onClick={onClose}
     >
       <motion.div
-        initial={{ scale: 0.9, y: 50, opacity: 0 }}
+        initial={{ scale: 0.95, y: 100, opacity: 0 }}
         animate={{ scale: 1, y: 0, opacity: 1 }}
-        exit={{ scale: 0.9, y: 30, opacity: 0 }}
+        exit={{ scale: 0.95, y: 100, opacity: 0 }}
         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-        className="w-full max-w-5xl max-h-[90vh] rounded-3xl overflow-hidden flex flex-col"
+        className="w-full max-w-5xl max-h-[95vh] sm:max-h-[90vh] rounded-t-3xl sm:rounded-3xl overflow-hidden flex flex-col"
         style={{
           background: 'linear-gradient(180deg, rgba(20, 20, 35, 0.98) 0%, rgba(10, 10, 18, 0.99) 100%)',
           border: '1px solid rgba(216, 109, 203, 0.3)',
-          boxShadow: '0 50px 100px rgba(0, 0, 0, 0.7), 0 0 80px rgba(216, 109, 203, 0.15)',
+          boxShadow: '0 -10px 40px rgba(0, 0, 0, 0.5), 0 50px 100px rgba(0, 0, 0, 0.7), 0 0 80px rgba(216, 109, 203, 0.15)',
+          paddingBottom: 'env(safe-area-inset-bottom)',
         }}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Drag Handle for mobile */}
+        <div className="sm:hidden flex justify-center py-2 shrink-0">
+          <div className="w-10 h-1 rounded-full bg-white/20" />
+        </div>
+
         {/* Header */}
         <div
-          className="flex items-center justify-between p-6 border-b border-white/10"
+          className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-6 border-b border-white/10 shrink-0 gap-3"
           style={{ background: 'linear-gradient(135deg, rgba(216, 109, 203, 0.15), rgba(139, 92, 246, 0.1))' }}
         >
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-3 sm:gap-4">
             <motion.div
-              className="w-14 h-14 rounded-2xl flex items-center justify-center"
+              className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0"
               style={{
                 background: 'linear-gradient(135deg, #D86DCB, #8B5CF6)',
                 boxShadow: '0 10px 30px rgba(216, 109, 203, 0.4)',
@@ -356,20 +362,29 @@ function ProcessFlowModal({
             >
               <FlowIcon />
             </motion.div>
-            <div>
-              <span className="font-display text-xs font-bold tracking-wider text-[#D86DCB]">
+            <div className="min-w-0 flex-1">
+              <span className="font-display text-[10px] sm:text-xs font-bold tracking-wider text-[#D86DCB]">
                 PROCESS FLOW VIEWER
               </span>
-              <h2 className="font-display text-xl font-semibold text-white mt-1">
+              <h2 className="font-display text-base sm:text-xl font-semibold text-white mt-0.5 sm:mt-1 truncate">
                 {sop.title}
               </h2>
-              <p className="text-xs text-white/50 mt-1">{sop.id} • {deptName}</p>
+              <p className="text-[11px] sm:text-xs text-white/50 mt-0.5 sm:mt-1">{sop.id} • {deptName}</p>
             </div>
+            {/* Mobile close button */}
+            <motion.button
+              onClick={onClose}
+              className="sm:hidden w-9 h-9 rounded-lg flex items-center justify-center text-white/50 hover:text-white transition-colors shrink-0 touch-manipulation"
+              style={{ background: 'rgba(255, 255, 255, 0.05)' }}
+              whileTap={{ scale: 0.95 }}
+            >
+              <CloseIcon />
+            </motion.button>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <motion.button
               onClick={handleDownload}
-              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold"
+              className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold touch-manipulation"
               style={{
                 background: 'rgba(0, 210, 106, 0.1)',
                 border: '1px solid rgba(0, 210, 106, 0.3)',
@@ -379,11 +394,12 @@ function ProcessFlowModal({
               whileTap={{ scale: 0.98 }}
             >
               <DownloadIcon />
-              Download DOCX
+              <span className="hidden xs:inline">Download</span> DOCX
             </motion.button>
+            {/* Desktop close button */}
             <motion.button
               onClick={onClose}
-              className="w-10 h-10 rounded-xl flex items-center justify-center text-white/50 hover:text-white transition-colors"
+              className="hidden sm:flex w-10 h-10 rounded-xl items-center justify-center text-white/50 hover:text-white transition-colors"
               style={{ background: 'rgba(255, 255, 255, 0.05)' }}
               whileHover={{ rotate: 90, background: 'rgba(216, 109, 203, 0.2)' }}
               whileTap={{ scale: 0.95 }}
@@ -394,33 +410,33 @@ function ProcessFlowModal({
         </div>
 
         {/* Flow Content */}
-        <div className="flex-1 overflow-y-auto p-8">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-8 scroll-container">
           {/* Purpose */}
-          <div className="mb-8 p-5 rounded-2xl" style={{
+          <div className="mb-5 sm:mb-8 p-3 sm:p-5 rounded-xl sm:rounded-2xl" style={{
             background: 'linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(216, 109, 203, 0.05))',
             border: '1px solid rgba(139, 92, 246, 0.2)',
           }}>
-            <h3 className="text-xs font-bold tracking-wider uppercase text-[#8B5CF6] mb-2 flex items-center gap-2">
+            <h3 className="text-[10px] sm:text-xs font-bold tracking-wider uppercase text-[#8B5CF6] mb-1.5 sm:mb-2 flex items-center gap-2">
               <InfoIcon /> Purpose
             </h3>
-            <p className="text-sm text-white/70 leading-relaxed">{sop.purpose}</p>
+            <p className="text-xs sm:text-sm text-white/70 leading-relaxed">{sop.purpose}</p>
           </div>
 
           {/* Visual Flow */}
-          <div className="mb-8">
-            <h3 className="text-xs font-bold tracking-wider uppercase text-[#D86DCB] mb-6 flex items-center gap-2">
+          <div className="mb-5 sm:mb-8">
+            <h3 className="text-[10px] sm:text-xs font-bold tracking-wider uppercase text-[#D86DCB] mb-4 sm:mb-6 flex items-center gap-2">
               <FlowIcon /> Process Steps ({sop.flow.length} Steps)
             </h3>
 
             <div className="relative">
               {/* Connection Line */}
               <div
-                className="absolute left-8 top-8 bottom-8 w-0.5"
+                className="absolute left-5 sm:left-8 top-5 sm:top-8 bottom-5 sm:bottom-8 w-0.5"
                 style={{ background: 'linear-gradient(180deg, #D86DCB, #8B5CF6, #D86DCB)' }}
               />
 
               {/* Steps */}
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {sop.flow.map((step, index) => {
                   const isActive = activeStep === index;
 
@@ -429,13 +445,13 @@ function ProcessFlowModal({
                       key={index}
                       initial={{ opacity: 0, x: -30 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="relative flex items-start gap-6 cursor-pointer group"
+                      transition={{ delay: index * 0.05 }}
+                      className="relative flex items-start gap-3 sm:gap-6 cursor-pointer group touch-manipulation"
                       onClick={() => setActiveStep(activeStep === index ? null : index)}
                     >
                       {/* Step Number */}
                       <motion.div
-                        className="relative z-10 w-16 h-16 rounded-2xl flex items-center justify-center shrink-0"
+                        className="relative z-10 w-10 h-10 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0"
                         style={{
                           background: isActive
                             ? 'linear-gradient(135deg, #D86DCB, #8B5CF6)'
@@ -450,14 +466,14 @@ function ProcessFlowModal({
                         animate={isActive ? { scale: [1, 1.05, 1] } : {}}
                         transition={{ duration: 1, repeat: isActive ? Infinity : 0 }}
                       >
-                        <span className={`font-display text-xl font-bold ${isActive ? 'text-white' : 'text-[#D86DCB]'}`}>
+                        <span className={`font-display text-base sm:text-xl font-bold ${isActive ? 'text-white' : 'text-[#D86DCB]'}`}>
                           {index + 1}
                         </span>
                       </motion.div>
 
                       {/* Step Content */}
                       <motion.div
-                        className="flex-1 p-5 rounded-2xl transition-all duration-300"
+                        className="flex-1 p-3 sm:p-5 rounded-xl sm:rounded-2xl transition-all duration-300"
                         style={{
                           background: isActive
                             ? 'rgba(216, 109, 203, 0.1)'
@@ -468,18 +484,18 @@ function ProcessFlowModal({
                         }}
                         whileHover={{ background: 'rgba(216, 109, 203, 0.08)' }}
                       >
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <span className="text-[10px] font-bold tracking-wider uppercase text-[#D86DCB] opacity-60">
+                        <div className="flex items-start sm:items-center justify-between gap-2">
+                          <div className="flex-1 min-w-0">
+                            <span className="text-[9px] sm:text-[10px] font-bold tracking-wider uppercase text-[#D86DCB] opacity-60">
                               Step {index + 1}
                             </span>
-                            <h4 className="text-lg font-semibold text-white mt-1">{step}</h4>
+                            <h4 className="text-sm sm:text-lg font-semibold text-white mt-0.5 sm:mt-1">{step}</h4>
                           </div>
                           {isActive && (
                             <motion.div
                               initial={{ scale: 0 }}
                               animate={{ scale: 1 }}
-                              className="px-3 py-1 rounded-full text-xs font-bold"
+                              className="px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold shrink-0"
                               style={{ background: 'rgba(0, 210, 106, 0.2)', color: '#00D26A' }}
                             >
                               Active
@@ -496,19 +512,19 @@ function ProcessFlowModal({
                               exit={{ height: 0, opacity: 0 }}
                               className="overflow-hidden"
                             >
-                              <div className="mt-4 pt-4 border-t border-white/10">
-                                <div className="grid grid-cols-3 gap-4">
-                                  <div className="p-3 rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.03)' }}>
-                                    <div className="text-[9px] font-bold tracking-wider uppercase text-white/40">Status</div>
-                                    <div className="text-sm font-semibold text-[#00D26A] mt-1">Ready</div>
+                              <div className="mt-3 sm:mt-4 pt-3 sm:pt-4 border-t border-white/10">
+                                <div className="grid grid-cols-3 gap-2 sm:gap-4">
+                                  <div className="p-2 sm:p-3 rounded-lg sm:rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.03)' }}>
+                                    <div className="text-[8px] sm:text-[9px] font-bold tracking-wider uppercase text-white/40">Status</div>
+                                    <div className="text-xs sm:text-sm font-semibold text-[#00D26A] mt-0.5 sm:mt-1">Ready</div>
                                   </div>
-                                  <div className="p-3 rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.03)' }}>
-                                    <div className="text-[9px] font-bold tracking-wider uppercase text-white/40">Owner</div>
-                                    <div className="text-sm font-semibold text-white mt-1">{sop.owner}</div>
+                                  <div className="p-2 sm:p-3 rounded-lg sm:rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.03)' }}>
+                                    <div className="text-[8px] sm:text-[9px] font-bold tracking-wider uppercase text-white/40">Owner</div>
+                                    <div className="text-xs sm:text-sm font-semibold text-white mt-0.5 sm:mt-1 truncate">{sop.owner}</div>
                                   </div>
-                                  <div className="p-3 rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.03)' }}>
-                                    <div className="text-[9px] font-bold tracking-wider uppercase text-white/40">SLA</div>
-                                    <div className="text-sm font-semibold text-white mt-1">{sop.kpis.sla}</div>
+                                  <div className="p-2 sm:p-3 rounded-lg sm:rounded-xl" style={{ background: 'rgba(255, 255, 255, 0.03)' }}>
+                                    <div className="text-[8px] sm:text-[9px] font-bold tracking-wider uppercase text-white/40">SLA</div>
+                                    <div className="text-xs sm:text-sm font-semibold text-white mt-0.5 sm:mt-1">{sop.kpis.sla}</div>
                                   </div>
                                 </div>
                               </div>
@@ -519,7 +535,7 @@ function ProcessFlowModal({
 
                       {/* Arrow to next */}
                       {index < sop.flow.length - 1 && (
-                        <div className="absolute left-8 -bottom-2 w-0.5 h-4 bg-gradient-to-b from-[#D86DCB] to-transparent" />
+                        <div className="absolute left-5 sm:left-8 -bottom-1.5 sm:-bottom-2 w-0.5 h-3 sm:h-4 bg-gradient-to-b from-[#D86DCB] to-transparent" />
                       )}
                     </motion.div>
                   );
@@ -529,14 +545,14 @@ function ProcessFlowModal({
           </div>
 
           {/* KPIs */}
-          <div className="p-5 rounded-2xl" style={{
+          <div className="p-3 sm:p-5 rounded-xl sm:rounded-2xl" style={{
             background: 'rgba(0, 210, 106, 0.05)',
             border: '1px solid rgba(0, 210, 106, 0.15)',
           }}>
-            <h3 className="text-xs font-bold tracking-wider uppercase text-[#00D26A] mb-4 flex items-center gap-2">
+            <h3 className="text-[10px] sm:text-xs font-bold tracking-wider uppercase text-[#00D26A] mb-3 sm:mb-4 flex items-center gap-2">
               <ChartIcon /> Performance Metrics
             </h3>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4">
               {[
                 { label: 'Target', value: sop.kpis.target },
                 { label: 'Accuracy', value: sop.kpis.accuracy },
@@ -547,11 +563,11 @@ function ProcessFlowModal({
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.5 + i * 0.1 }}
-                  className="p-4 rounded-xl text-center"
+                  className="p-2 sm:p-4 rounded-lg sm:rounded-xl text-center"
                   style={{ background: 'rgba(0, 210, 106, 0.1)' }}
                 >
-                  <div className="font-display text-2xl font-bold text-[#00D26A]">{kpi.value}</div>
-                  <div className="text-[10px] font-bold tracking-wider uppercase text-white/40 mt-1">{kpi.label}</div>
+                  <div className="font-display text-base sm:text-2xl font-bold text-[#00D26A]">{kpi.value}</div>
+                  <div className="text-[9px] sm:text-[10px] font-bold tracking-wider uppercase text-white/40 mt-0.5 sm:mt-1">{kpi.label}</div>
                 </motion.div>
               ))}
             </div>
@@ -650,57 +666,57 @@ export default function Home() {
     <div className="min-h-screen relative">
       {/* ===== BACKGROUND ===== */}
       <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {/* Orbs */}
+        {/* Orbs - Smaller on mobile for performance */}
         <div
-          className="absolute w-[700px] h-[700px] rounded-full opacity-50 -top-[250px] -right-[150px] animate-float"
+          className="absolute w-[350px] sm:w-[500px] md:w-[700px] h-[350px] sm:h-[500px] md:h-[700px] rounded-full opacity-40 sm:opacity-50 -top-[150px] sm:-top-[250px] -right-[100px] sm:-right-[150px] animate-float bg-orb"
           style={{
             background: 'radial-gradient(circle, rgba(216, 109, 203, 0.5) 0%, rgba(139, 92, 246, 0.2) 50%, transparent 70%)',
-            filter: 'blur(80px)',
+            filter: 'blur(60px)',
           }}
         />
         <div
-          className="absolute w-[600px] h-[600px] rounded-full opacity-50 -bottom-[200px] -left-[150px] animate-float"
+          className="absolute w-[300px] sm:w-[450px] md:w-[600px] h-[300px] sm:h-[450px] md:h-[600px] rounded-full opacity-40 sm:opacity-50 -bottom-[100px] sm:-bottom-[200px] -left-[100px] sm:-left-[150px] animate-float bg-orb"
           style={{
             background: 'radial-gradient(circle, rgba(184, 76, 184, 0.5) 0%, rgba(216, 109, 203, 0.2) 50%, transparent 70%)',
-            filter: 'blur(100px)',
+            filter: 'blur(80px)',
             animationDelay: '-8s'
           }}
         />
         <div
-          className="absolute w-[500px] h-[500px] rounded-full opacity-30 top-[40%] left-[30%] animate-float"
+          className="hidden sm:block absolute w-[300px] md:w-[500px] h-[300px] md:h-[500px] rounded-full opacity-30 top-[40%] left-[30%] animate-float bg-orb"
           style={{
             background: 'radial-gradient(circle, rgba(139, 92, 246, 0.4) 0%, transparent 60%)',
-            filter: 'blur(120px)',
+            filter: 'blur(100px)',
             animationDelay: '-16s'
           }}
         />
 
-        {/* Grid */}
+        {/* Grid - Larger spacing on mobile */}
         <div
-          className="absolute inset-0 opacity-[0.03]"
+          className="absolute inset-0 opacity-[0.02] sm:opacity-[0.03]"
           style={{
             backgroundImage: 'linear-gradient(rgba(216, 109, 203, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(216, 109, 203, 0.5) 1px, transparent 1px)',
-            backgroundSize: '60px 60px'
+            backgroundSize: '40px 40px'
           }}
         />
       </div>
 
       {/* ===== CONTENT ===== */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-12 safe-area-inset">
 
         {/* ===== HEADER ===== */}
-        <header className="text-center mb-16">
+        <header className="text-center mb-10 sm:mb-16 hero-section">
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8 }}
           >
             {/* Logo */}
-            <div className="mb-8">
-              <h1 className="font-display text-6xl md:text-7xl font-light tracking-[0.3em] text-gradient">
+            <div className="mb-6 sm:mb-8">
+              <h1 className="font-display text-4xl sm:text-6xl md:text-7xl font-light tracking-[0.2em] sm:tracking-[0.3em] text-gradient">
                 ONE
               </h1>
-              <p className="font-display text-xs tracking-[0.5em] text-white/40 uppercase mt-2">
+              <p className="font-display text-[10px] sm:text-xs tracking-[0.3em] sm:tracking-[0.5em] text-white/40 uppercase mt-1 sm:mt-2">
                 Development
               </p>
             </div>
@@ -710,7 +726,7 @@ export default function Home() {
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="inline-flex items-center gap-3 px-6 py-3 rounded-full text-xs font-bold tracking-[0.2em] uppercase mb-8 animate-pulse-glow"
+              className="inline-flex items-center gap-2 sm:gap-3 px-4 sm:px-6 py-2 sm:py-3 rounded-full text-[10px] sm:text-xs font-bold tracking-[0.15em] sm:tracking-[0.2em] uppercase mb-6 sm:mb-8 animate-pulse-glow"
               style={{
                 background: 'linear-gradient(135deg, rgba(216, 109, 203, 0.15), rgba(139, 92, 246, 0.1))',
                 border: '1px solid rgba(216, 109, 203, 0.3)',
@@ -734,7 +750,7 @@ export default function Home() {
 
             {/* Title */}
             <motion.h2
-              className="font-display text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-gradient"
+              className="font-display text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-bold mb-4 sm:mb-6 text-gradient px-2"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3 }}
@@ -744,7 +760,7 @@ export default function Home() {
 
             {/* Subtitle */}
             <motion.p
-              className="text-lg text-white/60 max-w-2xl mx-auto mb-12"
+              className="text-sm sm:text-lg text-white/60 max-w-2xl mx-auto mb-8 sm:mb-12 px-4 leading-relaxed"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
@@ -760,26 +776,29 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.5 }}
-            className="max-w-xl mx-auto mb-12"
+            className="max-w-xl mx-auto mb-8 sm:mb-12 px-2"
           >
             <div className="relative">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-[#D86DCB]">
+              <div className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-[#D86DCB]">
                 <SearchIcon />
               </div>
               <input
                 id="searchInput"
-                type="text"
-                placeholder="Search departments, SOPs, keywords... (Ctrl+K)"
+                type="search"
+                inputMode="search"
+                autoComplete="off"
+                autoCorrect="off"
+                placeholder="Search departments, SOPs..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full py-4 pl-12 pr-4 rounded-2xl text-white placeholder:text-white/40 bg-white/5 border border-white/10 focus:border-[#D86DCB]/50 focus:outline-none focus:ring-2 focus:ring-[#D86DCB]/20 transition-all"
+                className="w-full py-3 sm:py-4 pl-10 sm:pl-12 pr-3 sm:pr-4 rounded-xl sm:rounded-2xl text-base text-white placeholder:text-white/40 bg-white/5 border border-white/10 focus:border-[#D86DCB]/50 focus:outline-none focus:ring-2 focus:ring-[#D86DCB]/20 transition-all"
               />
             </div>
           </motion.div>
 
           {/* Stats */}
           <motion.div
-            className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-3xl mx-auto"
+            className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 max-w-3xl mx-auto px-2"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.6 }}
@@ -796,15 +815,15 @@ export default function Home() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7 + i * 0.1 }}
                 whileHover={{ y: -4, scale: 1.02 }}
-                className="glass rounded-2xl p-6 text-center cursor-default shimmer-container"
+                className="glass rounded-xl sm:rounded-2xl p-3 sm:p-6 text-center cursor-default shimmer-container"
               >
                 <div
-                  className="font-display text-4xl md:text-5xl font-bold mb-2"
+                  className="font-display text-2xl sm:text-4xl md:text-5xl font-bold mb-1 sm:mb-2"
                   style={{ color: stat.color }}
                 >
                   <AnimatedCounter value={stat.value} duration={2 + i * 0.3} />
                 </div>
-                <div className="text-xs text-white/50 uppercase tracking-wider">
+                <div className="text-[10px] sm:text-xs text-white/50 uppercase tracking-wider">
                   {stat.label}
                 </div>
               </motion.div>
@@ -813,44 +832,45 @@ export default function Home() {
         </header>
 
         {/* ===== DIVIDER ===== */}
-        <div className="flex items-center justify-center gap-4 my-16">
-          <div className="w-24 h-px bg-gradient-to-r from-transparent via-[#D86DCB]/50 to-transparent" />
+        <div className="flex items-center justify-center gap-3 sm:gap-4 my-10 sm:my-16">
+          <div className="w-16 sm:w-24 h-px bg-gradient-to-r from-transparent via-[#D86DCB]/50 to-transparent" />
           <motion.div
-            className="w-3 h-3 bg-gradient-to-br from-[#D86DCB] to-[#8B5CF6] rounded-sm"
+            className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-gradient-to-br from-[#D86DCB] to-[#8B5CF6] rounded-sm"
             animate={{ rotate: [45, 225, 45], scale: [1, 1.2, 1] }}
             transition={{ duration: 4, repeat: Infinity }}
             style={{ boxShadow: '0 0 20px rgba(216, 109, 203, 0.5)' }}
           />
-          <div className="w-24 h-px bg-gradient-to-r from-transparent via-[#D86DCB]/50 to-transparent" />
+          <div className="w-16 sm:w-24 h-px bg-gradient-to-r from-transparent via-[#D86DCB]/50 to-transparent" />
         </div>
 
         {/* ===== SECTION TITLE ===== */}
-        <h3 className="font-display text-center text-xs font-semibold tracking-[0.3em] uppercase text-white/40 mb-10">
+        <h3 className="font-display text-center text-[10px] sm:text-xs font-semibold tracking-[0.2em] sm:tracking-[0.3em] uppercase text-white/40 mb-6 sm:mb-10 px-4">
           Department SOPs
         </h3>
 
         {/* ===== DEPARTMENT GRID ===== */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 items-stretch">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-6 items-stretch px-1">
           {filteredDepts.map((dept, i) => (
             <motion.div
               key={dept.id}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 + i * 0.05 }}
+              transition={{ delay: 0.1 + i * 0.03 }}
               whileHover={{ y: -8, scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
               onClick={() => setSelectedDept(dept)}
-              className="glass rounded-3xl p-6 cursor-pointer card-hover shimmer-container group relative h-full flex flex-col"
+              className="glass rounded-2xl sm:rounded-3xl p-4 sm:p-6 cursor-pointer card-hover shimmer-container group relative h-full flex flex-col active:bg-white/5 touch-manipulation"
             >
               {/* Top Bar */}
               <div
-                className="absolute top-0 left-0 right-0 h-0.5 rounded-t-3xl opacity-0 group-hover:opacity-100 transition-opacity"
+                className="absolute top-0 left-0 right-0 h-0.5 rounded-t-2xl sm:rounded-t-3xl opacity-0 group-hover:opacity-100 transition-opacity"
                 style={{ background: 'linear-gradient(90deg, transparent, #D86DCB, #8B5CF6, #D86DCB, transparent)' }}
               />
 
               {/* Header */}
-              <div className="flex items-start gap-4 mb-5">
+              <div className="flex items-start gap-3 sm:gap-4 mb-4 sm:mb-5">
                 <motion.div
-                  className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shrink-0"
+                  className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl flex items-center justify-center text-2xl sm:text-3xl shrink-0"
                   whileHover={{ scale: 1.1, rotate: 5 }}
                   style={{
                     background: 'linear-gradient(135deg, rgba(216, 109, 203, 0.15), rgba(139, 92, 246, 0.1))',
@@ -861,7 +881,7 @@ export default function Home() {
                 </motion.div>
                 <div className="flex-1 min-w-0">
                   <span
-                    className="inline-block text-[10px] font-bold tracking-wider uppercase px-2 py-1 rounded-md mb-2"
+                    className="inline-block text-[9px] sm:text-[10px] font-bold tracking-wider uppercase px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-md mb-1.5 sm:mb-2"
                     style={{
                       background: 'rgba(216, 109, 203, 0.1)',
                       color: '#D86DCB',
@@ -870,37 +890,37 @@ export default function Home() {
                   >
                     {dept.id}
                   </span>
-                  <h4 className="font-display text-lg font-semibold text-white truncate">
+                  <h4 className="font-display text-base sm:text-lg font-semibold text-white truncate">
                     {dept.name}
                   </h4>
-                  <p className="text-xs text-white/50 mt-1">
+                  <p className="text-[11px] sm:text-xs text-white/50 mt-0.5 sm:mt-1">
                     Owner: <span className="text-[#D86DCB]">{dept.owner}</span>
                   </p>
                 </div>
               </div>
 
               {/* Stats Row */}
-              <div className="flex gap-4 py-3 border-t border-b border-white/5 mb-5">
-                <div className="flex items-center gap-2">
+              <div className="flex gap-3 sm:gap-4 py-2.5 sm:py-3 border-t border-b border-white/5 mb-4 sm:mb-5">
+                <div className="flex items-center gap-1.5 sm:gap-2">
                   <span className="text-[#D86DCB]"><FileIcon /></span>
-                  <span className="text-sm text-white/60">
+                  <span className="text-xs sm:text-sm text-white/60">
                     <strong className="text-white">{dept.sops.length}</strong> SOPs
                   </span>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 sm:gap-2">
                   <span className="text-[#8B5CF6]"><FlowIcon /></span>
-                  <span className="text-sm text-white/60">
+                  <span className="text-xs sm:text-sm text-white/60">
                     <strong className="text-white">{dept.sops.length}</strong> Flows
                   </span>
                 </div>
               </div>
 
               {/* Footer */}
-              <div className="flex items-center justify-between mt-auto pt-2">
+              <div className="flex items-center justify-between mt-auto pt-1 sm:pt-2">
                 <motion.button
                   whileHover={{ scale: 1.03 }}
                   whileTap={{ scale: 0.98 }}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white"
+                  className="flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold text-white"
                   style={{
                     background: 'linear-gradient(135deg, #D86DCB, #B84CB8)',
                     boxShadow: '0 4px 15px rgba(216, 109, 203, 0.3)',
@@ -910,14 +930,14 @@ export default function Home() {
                   <ArrowIcon />
                 </motion.button>
                 <div
-                  className="flex items-center gap-1.5 text-[10px] font-semibold px-3 py-1.5 rounded-full"
+                  className="flex items-center gap-1 sm:gap-1.5 text-[9px] sm:text-[10px] font-semibold px-2 sm:px-3 py-1 sm:py-1.5 rounded-full"
                   style={{
                     background: 'rgba(0, 210, 106, 0.1)',
                     border: '1px solid rgba(0, 210, 106, 0.2)',
                     color: '#00D26A',
                   }}
                 >
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#00D26A] animate-pulse" />
+                  <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-[#00D26A] animate-pulse" />
                   RERA
                 </div>
               </div>
@@ -939,13 +959,13 @@ export default function Home() {
         )}
 
         {/* ===== FOOTER ===== */}
-        <footer className="text-center mt-24 pt-12 border-t border-white/5">
-          <div className="font-display text-xl font-medium text-gradient-static mb-3">
+        <footer className="text-center mt-16 sm:mt-24 pt-8 sm:pt-12 border-t border-white/5 pb-8 sm:pb-4">
+          <div className="font-display text-lg sm:text-xl font-medium text-gradient-static mb-2 sm:mb-3">
             ONE DEVELOPMENT
           </div>
-          <p className="text-sm text-white/40 mb-4">Enterprise-Grade SOPs • GOD TIER Precision</p>
+          <p className="text-xs sm:text-sm text-white/40 mb-3 sm:mb-4">Enterprise-Grade SOPs • GOD TIER Precision</p>
           <div
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs"
+            className="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-[11px] sm:text-xs"
             style={{
               background: 'rgba(216, 109, 203, 0.08)',
               border: '1px solid rgba(216, 109, 203, 0.15)',
@@ -970,31 +990,37 @@ export default function Home() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-start justify-center p-4 overflow-y-auto"
+            className="fixed inset-0 z-50 flex items-end sm:items-start justify-center sm:p-4 overflow-y-auto"
             style={{ background: 'rgba(5, 5, 10, 0.95)', backdropFilter: 'blur(10px)' }}
             onClick={() => setSelectedDept(null)}
           >
             <motion.div
-              initial={{ scale: 0.95, y: 30, opacity: 0 }}
+              initial={{ scale: 0.95, y: 100, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
-              exit={{ scale: 0.95, y: 20, opacity: 0 }}
+              exit={{ scale: 0.95, y: 100, opacity: 0 }}
               transition={{ type: 'spring', damping: 25 }}
-              className="w-full max-w-4xl my-8 rounded-3xl overflow-hidden"
+              className="w-full max-w-4xl sm:my-8 rounded-t-3xl sm:rounded-3xl overflow-hidden max-h-[95vh] sm:max-h-[90vh] flex flex-col"
               style={{
                 background: 'linear-gradient(180deg, rgba(20, 20, 30, 0.98) 0%, rgba(10, 10, 18, 0.99) 100%)',
                 border: '1px solid rgba(216, 109, 203, 0.2)',
-                boxShadow: '0 30px 80px rgba(0, 0, 0, 0.5)',
+                boxShadow: '0 -10px 40px rgba(0, 0, 0, 0.5), 0 30px 80px rgba(0, 0, 0, 0.5)',
+                paddingBottom: 'env(safe-area-inset-bottom)',
               }}
               onClick={(e) => e.stopPropagation()}
             >
+              {/* Drag Handle for mobile */}
+              <div className="sm:hidden flex justify-center py-2">
+                <div className="w-10 h-1 rounded-full bg-white/20" />
+              </div>
+
               {/* Modal Header */}
               <div
-                className="flex items-center justify-between p-6 border-b border-white/5"
+                className="flex items-center justify-between p-4 sm:p-6 border-b border-white/5 shrink-0"
                 style={{ background: 'linear-gradient(135deg, rgba(216, 109, 203, 0.08), rgba(139, 92, 246, 0.04))' }}
               >
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-3 sm:gap-4">
                   <motion.div
-                    className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl"
+                    className="w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-3xl"
                     initial={{ scale: 0.8 }}
                     animate={{ scale: 1 }}
                     style={{
@@ -1005,17 +1031,17 @@ export default function Home() {
                     {selectedDept.icon}
                   </motion.div>
                   <div>
-                    <span className="font-display text-xs font-bold tracking-wider text-[#D86DCB]">
+                    <span className="font-display text-[10px] sm:text-xs font-bold tracking-wider text-[#D86DCB]">
                       {selectedDept.id} DEPARTMENT
                     </span>
-                    <h2 className="font-display text-2xl font-semibold text-white">
+                    <h2 className="font-display text-lg sm:text-2xl font-semibold text-white">
                       {selectedDept.name}
                     </h2>
                   </div>
                 </div>
                 <motion.button
                   onClick={() => setSelectedDept(null)}
-                  className="w-10 h-10 rounded-xl flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors touch-manipulation"
                   whileHover={{ rotate: 90 }}
                   whileTap={{ scale: 0.95 }}
                 >
@@ -1023,28 +1049,28 @@ export default function Home() {
                 </motion.button>
               </div>
 
-              {/* Modal Body */}
-              <div className="p-6">
+              {/* Modal Body - Scrollable */}
+              <div className="p-4 sm:p-6 overflow-y-auto flex-1 scroll-container">
                 {/* Info Cards */}
-                <div className="grid md:grid-cols-2 gap-4 mb-6">
-                  <div className="p-4 rounded-xl" style={{ background: 'rgba(216, 109, 203, 0.05)', border: '1px solid rgba(216, 109, 203, 0.1)' }}>
-                    <h4 className="font-display text-xs font-bold tracking-wider uppercase text-[#D86DCB] mb-3 flex items-center gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-4 sm:mb-6">
+                  <div className="p-3 sm:p-4 rounded-lg sm:rounded-xl" style={{ background: 'rgba(216, 109, 203, 0.05)', border: '1px solid rgba(216, 109, 203, 0.1)' }}>
+                    <h4 className="font-display text-[10px] sm:text-xs font-bold tracking-wider uppercase text-[#D86DCB] mb-2 sm:mb-3 flex items-center gap-2">
                       <InfoIcon /> Overview
                     </h4>
-                    <p className="text-sm text-white/60 leading-relaxed">{selectedDept.description}</p>
+                    <p className="text-xs sm:text-sm text-white/60 leading-relaxed">{selectedDept.description}</p>
                   </div>
-                  <div className="p-4 rounded-xl" style={{ background: 'rgba(139, 92, 246, 0.05)', border: '1px solid rgba(139, 92, 246, 0.1)' }}>
-                    <h4 className="font-display text-xs font-bold tracking-wider uppercase text-[#8B5CF6] mb-3 flex items-center gap-2">
+                  <div className="p-3 sm:p-4 rounded-lg sm:rounded-xl" style={{ background: 'rgba(139, 92, 246, 0.05)', border: '1px solid rgba(139, 92, 246, 0.1)' }}>
+                    <h4 className="font-display text-[10px] sm:text-xs font-bold tracking-wider uppercase text-[#8B5CF6] mb-2 sm:mb-3 flex items-center gap-2">
                       <UsersIcon /> Stakeholders
                     </h4>
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5 sm:gap-2">
                       {selectedDept.responsible.map((r, i) => (
                         <span
                           key={i}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs"
+                          className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-3 py-1 sm:py-1.5 rounded-md sm:rounded-lg text-[11px] sm:text-xs"
                           style={{ background: 'rgba(139, 92, 246, 0.1)', border: '1px solid rgba(139, 92, 246, 0.15)' }}
                         >
-                          <span className="w-1.5 h-1.5 rounded-full bg-[#8B5CF6]" />
+                          <span className="w-1 h-1 sm:w-1.5 sm:h-1.5 rounded-full bg-[#8B5CF6]" />
                           {r}
                         </span>
                       ))}
@@ -1053,27 +1079,27 @@ export default function Home() {
                 </div>
 
                 {/* KPIs */}
-                <div className="p-4 rounded-xl mb-6" style={{ background: 'rgba(216, 109, 203, 0.03)', border: '1px solid rgba(216, 109, 203, 0.08)' }}>
-                  <h4 className="font-display text-xs font-bold tracking-wider uppercase text-[#D86DCB] mb-4 flex items-center gap-2">
+                <div className="p-3 sm:p-4 rounded-lg sm:rounded-xl mb-4 sm:mb-6" style={{ background: 'rgba(216, 109, 203, 0.03)', border: '1px solid rgba(216, 109, 203, 0.08)' }}>
+                  <h4 className="font-display text-[10px] sm:text-xs font-bold tracking-wider uppercase text-[#D86DCB] mb-3 sm:mb-4 flex items-center gap-2">
                     <ChartIcon /> KPIs
                   </h4>
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
                     {selectedDept.kpis.map((kpi, i) => (
-                      <div key={i} className="p-3 rounded-lg text-center" style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
-                        <div className="font-display text-xl font-bold text-[#00D26A]">{kpi.value}</div>
-                        <div className="text-[10px] text-white/40 uppercase mt-1">{kpi.label}</div>
+                      <div key={i} className="p-2 sm:p-3 rounded-md sm:rounded-lg text-center" style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
+                        <div className="font-display text-base sm:text-xl font-bold text-[#00D26A]">{kpi.value}</div>
+                        <div className="text-[9px] sm:text-[10px] text-white/40 uppercase mt-0.5 sm:mt-1">{kpi.label}</div>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* SOPs */}
-                <div className="font-display text-xs font-semibold tracking-wider uppercase text-white/40 mb-4 flex items-center gap-3">
+                <div className="font-display text-[10px] sm:text-xs font-semibold tracking-wider uppercase text-white/40 mb-3 sm:mb-4 flex items-center gap-2 sm:gap-3">
                   SOPs ({selectedDept.sops.length})
                   <div className="flex-1 h-px bg-white/5" />
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   {selectedDept.sops.map((sop, i) => (
                     <SOPCard
                       key={sop.id}
@@ -1135,7 +1161,7 @@ function SOPCard({
       initial={{ opacity: 0, x: -20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ delay: index * 0.03 }}
-      className="rounded-xl overflow-hidden transition-all"
+      className="rounded-lg sm:rounded-xl overflow-hidden transition-all"
       style={{
         background: expanded ? 'rgba(216, 109, 203, 0.03)' : 'rgba(255, 255, 255, 0.02)',
         border: expanded ? '1px solid rgba(216, 109, 203, 0.2)' : '1px solid rgba(255, 255, 255, 0.05)',
@@ -1143,11 +1169,11 @@ function SOPCard({
     >
       {/* Header */}
       <div
-        className="flex items-center gap-4 p-4 cursor-pointer hover:bg-white/[0.02] transition-colors"
+        className="flex items-center gap-3 sm:gap-4 p-3 sm:p-4 cursor-pointer hover:bg-white/[0.02] transition-colors active:bg-white/[0.04] touch-manipulation"
         onClick={onToggle}
       >
         <div
-          className="w-10 h-10 rounded-lg flex items-center justify-center font-display text-sm font-bold shrink-0"
+          className="w-8 h-8 sm:w-10 sm:h-10 rounded-md sm:rounded-lg flex items-center justify-center font-display text-xs sm:text-sm font-bold shrink-0"
           style={{
             background: expanded ? 'linear-gradient(135deg, #D86DCB, #8B5CF6)' : 'rgba(216, 109, 203, 0.1)',
             color: expanded ? 'white' : '#D86DCB',
@@ -1156,11 +1182,11 @@ function SOPCard({
           {index + 1}
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-display text-[10px] font-semibold tracking-wider text-white/40 mb-0.5">{sop.id}</div>
-          <div className="text-sm font-medium text-white/90 truncate">{sop.title}</div>
+          <div className="font-display text-[9px] sm:text-[10px] font-semibold tracking-wider text-white/40 mb-0.5">{sop.id}</div>
+          <div className="text-xs sm:text-sm font-medium text-white/90 truncate">{sop.title}</div>
         </div>
         <button
-          className="w-8 h-8 rounded-lg flex items-center justify-center transition-colors"
+          className="w-7 h-7 sm:w-8 sm:h-8 rounded-md sm:rounded-lg flex items-center justify-center transition-colors shrink-0"
           style={{
             background: expanded ? 'linear-gradient(135deg, #D86DCB, #8B5CF6)' : 'rgba(255, 255, 255, 0.05)',
             color: expanded ? 'white' : 'rgba(255, 255, 255, 0.5)',
@@ -1180,18 +1206,18 @@ function SOPCard({
             transition={{ duration: 0.3 }}
             className="overflow-hidden"
           >
-            <div className="px-4 pb-4 border-t border-white/5 pt-4">
+            <div className="px-3 sm:px-4 pb-3 sm:pb-4 border-t border-white/5 pt-3 sm:pt-4">
               {/* Purpose */}
               <div
-                className="p-4 rounded-lg mb-4"
+                className="p-3 sm:p-4 rounded-md sm:rounded-lg mb-3 sm:mb-4"
                 style={{ background: 'linear-gradient(90deg, rgba(139, 92, 246, 0.08), transparent)', borderLeft: '3px solid #8B5CF6' }}
               >
-                <h5 className="text-xs font-bold tracking-wider uppercase text-[#8B5CF6] mb-2">Purpose</h5>
-                <p className="text-sm text-white/60 leading-relaxed">{sop.purpose}</p>
+                <h5 className="text-[10px] sm:text-xs font-bold tracking-wider uppercase text-[#8B5CF6] mb-1.5 sm:mb-2">Purpose</h5>
+                <p className="text-xs sm:text-sm text-white/60 leading-relaxed">{sop.purpose}</p>
               </div>
 
               {/* Meta */}
-              <div className="grid grid-cols-3 md:grid-cols-6 gap-2 mb-4">
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-1.5 sm:gap-2 mb-3 sm:mb-4">
                 {[
                   { label: 'Owner', value: sop.owner, color: '#D86DCB' },
                   { label: 'Version', value: sop.version, color: '#fff' },
@@ -1200,19 +1226,37 @@ function SOPCard({
                   { label: 'SLA', value: sop.kpis.sla, color: '#fff' },
                   { label: 'Status', value: 'Active', color: '#00D26A' }
                 ].map((item, j) => (
-                  <div key={j} className="p-2.5 rounded-lg" style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
-                    <div className="text-[9px] font-semibold tracking-wider uppercase text-white/40 mb-1">{item.label}</div>
-                    <div className="text-xs font-semibold truncate" style={{ color: item.color }}>{item.value}</div>
+                  <div key={j} className="p-1.5 sm:p-2.5 rounded-md sm:rounded-lg" style={{ background: 'rgba(255, 255, 255, 0.02)' }}>
+                    <div className="text-[8px] sm:text-[9px] font-semibold tracking-wider uppercase text-white/40 mb-0.5 sm:mb-1">{item.label}</div>
+                    <div className="text-[10px] sm:text-xs font-semibold truncate" style={{ color: item.color }}>{item.value}</div>
                   </div>
                 ))}
               </div>
 
-              {/* Flow Preview */}
-              <div className="p-4 rounded-xl mb-4" style={{ background: 'rgba(216, 109, 203, 0.03)', border: '1px solid rgba(216, 109, 203, 0.08)' }}>
-                <h5 className="text-xs font-bold tracking-wider uppercase text-[#D86DCB] mb-3 flex items-center gap-2">
+              {/* Flow Preview - Simplified for mobile */}
+              <div className="p-3 sm:p-4 rounded-lg sm:rounded-xl mb-3 sm:mb-4" style={{ background: 'rgba(216, 109, 203, 0.03)', border: '1px solid rgba(216, 109, 203, 0.08)' }}>
+                <h5 className="text-[10px] sm:text-xs font-bold tracking-wider uppercase text-[#D86DCB] mb-2 sm:mb-3 flex items-center gap-2">
                   <FlowIcon /> Process Flow ({sop.flow.length} Steps)
                 </h5>
-                <div className="flex flex-wrap items-center gap-2">
+                {/* Mobile: Show as compact list */}
+                <div className="sm:hidden space-y-1.5">
+                  {sop.flow.slice(0, 3).map((step, j) => (
+                    <div key={j} className="flex items-center gap-2 text-xs">
+                      <span
+                        className="w-5 h-5 rounded flex items-center justify-center text-[10px] font-bold text-white shrink-0"
+                        style={{ background: 'linear-gradient(135deg, #D86DCB, #8B5CF6)' }}
+                      >
+                        {j + 1}
+                      </span>
+                      <span className="text-white/70 truncate">{step}</span>
+                    </div>
+                  ))}
+                  {sop.flow.length > 3 && (
+                    <span className="text-[11px] text-white/40 block pl-7">+{sop.flow.length - 3} more steps</span>
+                  )}
+                </div>
+                {/* Desktop: Original horizontal layout */}
+                <div className="hidden sm:flex flex-wrap items-center gap-2">
                   {sop.flow.slice(0, 4).map((step, j) => (
                     <div key={j} className="contents">
                       <div
@@ -1236,8 +1280,8 @@ function SOPCard({
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className="flex flex-wrap gap-3">
+              {/* Actions - Stack on mobile */}
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                 <motion.button
                   onClick={(e) => {
                     e.stopPropagation();
@@ -1245,7 +1289,7 @@ function SOPCard({
                   }}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white"
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2.5 rounded-lg text-xs sm:text-sm font-semibold text-white touch-manipulation"
                   style={{
                     background: 'linear-gradient(135deg, #D86DCB, #B84CB8)',
                     boxShadow: '0 4px 15px rgba(216, 109, 203, 0.3)',
@@ -1261,7 +1305,7 @@ function SOPCard({
                   disabled={isDownloading}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold disabled:opacity-50"
+                  className="flex items-center justify-center gap-2 px-4 py-2.5 sm:py-2.5 rounded-lg text-xs sm:text-sm font-semibold disabled:opacity-50 touch-manipulation"
                   style={{
                     background: 'rgba(0, 210, 106, 0.1)',
                     border: '1px solid rgba(0, 210, 106, 0.2)',
